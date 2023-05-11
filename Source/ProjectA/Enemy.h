@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CreatureController.h"
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
@@ -26,6 +27,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void DecreaseHP(int value);
+
+
+public:
+	int _hp;
+	const int _damage = 10;
+
+	UPROPERTY(BlueprintReadOnly,EditDefaultsOnly)
+	bool _bDead;
 
 
 

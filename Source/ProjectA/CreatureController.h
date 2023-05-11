@@ -37,6 +37,8 @@ public:
 
 	UFUNCTION()
 	void OnTargetPerception(AActor* Actor, FAIStimulus Stimulus); //인지된 하나의 타겟 액터만 리턴한다.
+
+	
 	
 	class UAISenseConfig_Sight* _sight; //시야 감각을 위함.
 
@@ -52,8 +54,9 @@ protected:
 	
 	virtual void OnPossess(APawn* InPawn) override;
 
-	
+public:	
 
+	
 
 
 public:

@@ -8,6 +8,8 @@
 #include "SmallTurret.h"
 
 
+#include "DrawDebugHelpers.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "Perception/AISenseConfig.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Kismet/KismetMaterialLibrary.h"
@@ -21,20 +23,33 @@ ASmallTurret::ASmallTurret()
 	
 	_hp = 100;
 	_ammo = _maxAmmo;
-
+	
 	_aiPerceptionComp = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComp"));
 	_aiPerceptionStimulSourceComp = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIPercetionStimulSorceComp"));
 
 	_sight = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 	_sight->SightRadius = 5000.0f;
+	_sight->LoseSightRadius = 5000.0f;
+	_sight->SetMaxAge(1.5);
+	_sight->PeripheralVisionAngleDegrees = 130;
+	//범위 내에 이미 인지된 액터를  영원히 기억할지 말지?
+	_sight->AutoSuccessRangeFromLastSeenLocation = -1;
+	//근거리시야반경
+	_sight->NearClippingRadius = 1000;
 	_sight->DetectionByAffiliation.bDetectNeutrals = true;
-
+	_sight->DetectionByAffiliation.bDetectEnemies = true;
+	_sight->DetectionByAffiliation.bDetectFriendlies = true;
 
 	_aiPerceptionComp->ConfigureSense(*_sight);
 	_aiPerceptionComp->SetDominantSense(*_sight->GetSenseImplementation());
 
 	_aiPerceptionComp->OnTargetPerceptionUpdated.AddDynamic(this,&ASmallTurret::OnTargetPerception);
+	//_aiPerceptionComp->OnPerceptionUpdated.AddDynamic(this,&ASmallTurret::OnPerceptionUpdated);
+	
 
+	
+	_targetEnemy = nullptr;
+	_bCanFire = false;
 
 	
 }
@@ -42,8 +57,13 @@ ASmallTurret::ASmallTurret()
 // Called when the game starts or when spawned
 void ASmallTurret::BeginPlay()
 {
-	//UE_LOG(LogTemp,Display,TEXT("Begin"));
 	Super::BeginPlay();
+
+	//UE_LOG(LogTemp,Display,TEXT("Begin"));
+
+	
+
+	_turretRotation = GetActorRotation();
 	
 }
 
@@ -51,6 +71,14 @@ void ASmallTurret::BeginPlay()
 void ASmallTurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	
+	if(_targetEnemy != nullptr)
+	{
+		Aim();
+	}
+
+
 
 }
 
@@ -64,21 +92,132 @@ void ASmallTurret::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void ASmallTurret::OnTargetPerception(AActor* Actor, FAIStimulus Stimulus)
 {
-	//매개변수로 받은 Actor를 Player로 형변환
-	_enemy = Cast<AEnemy>(Actor);
-
-	if(_enemy != nullptr)
+	UE_LOG(LogTemp,Display,TEXT("Perception Updated"));
+	
+	//인지한 Actor가 Enemy라면 타겟 설정
+	if(Cast<AEnemy>(Actor) != nullptr)
 	{
-		UE_LOG(LogTemp,Display,TEXT("Target Percetion Success"));
-
-		//Target Vec - myVec은 방향 위치를 나타낸다.
-		_targetDirection = (_enemy->GetActorLocation()-GetActorLocation());
-		//방향벡터를 Rotation으로 전환
-		SetActorRotation(_targetDirection.Rotation());
-		
-		
+		if(Cast<AEnemy>(Actor)->AIControllerClass != nullptr)
+		{
+			//인지한 Actor를 타겟 배열에 Push
+			_targetEnemy = Cast<AEnemy>(Actor);
+			UE_LOG(LogTemp,Display,TEXT("Target Enemy::  %s"),*_targetEnemy->GetName());
+		}
+	
 	}
 	
 }
+
+void ASmallTurret::Aim()
+{
+
+	//UE_LOG(LogTemp,Display,TEXT("Aim"));
+	//Target Vec - myVec은 방향 위치를 나타낸다.
+	//방향벡터를 Rotation으로 전환
+	_targetDirection = _targetEnemy->GetActorLocation() - GetActorLocation();
+	_targetRotation = _targetDirection.Rotation();
+
+	
+
+	//터렛을 사실적으로 천천히 회전하고싶다.
+	
+	_gunL = GetMesh()->GetSocketLocation("gunL");
+	_gunR = GetMesh()->GetSocketLocation("gunR");
+
+	//터렛이 타겟 액터를 완벽히 조준 했을 때 사격 실시.
+	if(_bCanFire)
+	{
+		Fire(_gunL);
+		Fire(_gunR);
+	
+	}
+	else
+	{
+		Turn_Turret();
+	}
+	
+
+}
+
+//터렛을 천천히 타겟을 향해 회전시킨다.
+void ASmallTurret::Turn_Turret()
+{
+	
+	if(_targetRotation.Pitch > _turretRotation.Pitch)
+	{
+		_turretRotation.Pitch += 1.0f;
+	}
+	else
+	{
+		_turretRotation.Pitch -= 1.0f;
+	}
+	
+	if(_targetRotation.Yaw > _turretRotation.Yaw)
+	{
+		_turretRotation.Yaw += 1.0f;
+	}
+	else
+	{
+		_turretRotation.Yaw -= 1.0f;
+	}
+
+	//UE_LOG(LogTemp,Display,TEXT("Target Rotation Yaw:: %f, Turret Rotation Yaw:: %f"),_targetRotation.Yaw,_turretRotation.Yaw);
+	//UE_LOG(LogTemp,Display,TEXT("Target Rotation Pitch:: %f, Turret Rotation Pitch:: %f"),_targetRotation.Pitch,_turretRotation.Pitch);
+	const int resultYaw = _turretRotation.Yaw - _targetRotation.Yaw;
+	const int resultPitch = _turretRotation.Pitch - _targetRotation.Pitch;
+
+	if(resultYaw == 0 && resultPitch == 0)
+	{
+		_bCanFire = true;
+	}
+	
+}
+
+
+void ASmallTurret::Fire(const FVector socketVec)
+{
+	if(_targetEnemy != nullptr)
+	{
+		//UE_LOG(LogTemp,Display,TEXT("Fire"));
+		FHitResult Hit;
+	
+		FVector Start = socketVec;
+		FVector End =  _targetEnemy->GetActorLocation();
+
+		ECollisionChannel Channel = ECollisionChannel::ECC_Visibility;
+		FCollisionQueryParams QueryParams;
+
+		QueryParams.AddIgnoredActor(this);
+
+		GetWorld()->LineTraceSingleByChannel(Hit,Start,End,Channel,QueryParams);
+
+		DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,1.0f);
+
+		if(Hit.GetActor() != nullptr)
+		{
+			if(Hit.GetActor()->ActorHasTag("Enemy"))
+			{
+				AEnemy* hitEnemy = Cast<AEnemy>(Hit.GetActor());
+				hitEnemy->DecreaseHP(1);
+			
+				if(hitEnemy->_hp <=0)
+				{
+					_targetEnemy = nullptr;
+					_bCanFire = false;
+
+					
+					
+					
+				}
+			
+			}
+		}
+	}
+
+	
+}
+
+
+
 
 

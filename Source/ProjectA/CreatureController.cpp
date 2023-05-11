@@ -25,12 +25,16 @@ ACreatureController::ACreatureController()
 	_aiPerceptionStimuliSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIPercetionStimulSorceComp"));
 
 	_sight = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	_sight->SightRadius = 5000.0f;
+	_sight->SightRadius = 8000.0f;
 	_sight->DetectionByAffiliation.bDetectNeutrals = true;
+	_sight->DetectionByAffiliation.bDetectEnemies = true;
+	_sight->DetectionByAffiliation.bDetectFriendlies = true;
+
 
 
 	_aIPerceptionComponent->ConfigureSense(*_sight);
 	_aIPerceptionComponent->SetDominantSense(*_sight->GetSenseImplementation());
+	_aIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this,&ACreatureController::OnTargetPerception);
 
 	
 }
@@ -42,9 +46,12 @@ void ACreatureController::BeginPlay()
 	//현재 소유한 캐릭터가 소유하고자 하는 클래스가 맞는지 확인한다.
 	AEnemy* Enemy = Cast<AEnemy>(GetPawn());
 
-	//비헤비어트리 실행 시작
-	RunBehaviorTree(_behaviorTree);
-	_behaviorTreeComponent->StartTree(*_behaviorTree);
+	if(IsValid(_behaviorTree))
+	{
+		//비헤비어트리 실행 시작
+		RunBehaviorTree(_behaviorTree);
+		_behaviorTreeComponent->StartTree(*_behaviorTree);
+	}
 }
 
 void ACreatureController::OnPossess(APawn* InPawn)
@@ -63,8 +70,13 @@ void ACreatureController::OnTargetPerception(AActor* Actor, FAIStimulus Stimulus
 	
 	if(turret != nullptr)
 	{
-		UE_LOG(LogTemp,Display,TEXT("Enemy perception Success"));
+		//UE_LOG(LogTemp,Display,TEXT("Enemy perception Success"));
 		_blackboardComponent->SetValueAsObject("TargetObject",turret);
 	}
 }
+
+
+
+
+
 

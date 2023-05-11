@@ -37,20 +37,42 @@ public:
 
 public:
 	void Aim();
-	void Fire();
+	void Fire(const FVector socketVec);
+
 
 	//인지된 하나의 TargetActor return
 	UFUNCTION()
 	void OnTargetPerception(AActor* Actor, FAIStimulus Stimulus);
+
+	UFUNCTION()
+	void Turn_Turret();
+	
+	//UFUNCTION()
+	//void OnPerceptionUpdated(TArray<AActor*> const& UpdatedActors);
 public:
 	const int _maxAmmo = 30;
 	int _ammo;
 	int _hp;
-	float fireRange;
+	float _fireRange;
+	const int _damage = 10;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool _bCanFire;
+
+	FVector _gunL;
+	FVector _gunR;
+
+	
+	UPROPERTY(EditDefaultsOnly)
+	AEnemy* _targetEnemy;
+	
 	FVector _targetDirection;
 
-	AEnemy* _enemy;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	FRotator _turretRotation;
+
+	FRotator _targetRotation;
+
 
 	//시야 감각을 위함.
 	class UAISenseConfig_Sight* _sight;

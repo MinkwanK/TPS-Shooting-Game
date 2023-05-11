@@ -3,6 +3,7 @@
 
 #include "Enemy.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 // Sets default values
@@ -10,6 +11,11 @@ AEnemy::AEnemy()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
+	GetCharacterMovement()->MaxWalkSpeed = 200;
+
+	_hp = 100;
+	_bDead = false;
 
 	
 
@@ -35,6 +41,25 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 }
+
+void AEnemy::DecreaseHP(const int value)
+{
+	if(!_bDead)
+	{
+		_hp -= value;
+	
+		if(_hp <= 0)
+		{
+			_bDead = true;
+			this->AIControllerClass = nullptr;
+			this->Controller->Destroy();
+			this->SetActorEnableCollision(false);
+		}
+	}
+}
+
+
+
 
 
 
