@@ -53,8 +53,8 @@ public:
 	// UPROPERTY(EditDefaultsOnly)
 	// UAIPerceptionComponent* _aIPerceptionComponent;
 	//
-	// UPROPERTY(EditDefaultsOnly)
-	// UAIPerceptionStimuliSourceComponent* _aiPerceptionStimuliSourceComponent;
+	UPROPERTY(EditDefaultsOnly)
+	UAIPerceptionStimuliSourceComponent* _aiPerceptionStimuliSourceComponent;
 	
 
 	

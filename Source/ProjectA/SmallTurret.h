@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Enemy.h"
+#include "MyCharacter.h"
 #include "GameFramework/Character.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "SmallTurret.generated.h"
@@ -57,6 +58,8 @@ public:
 	int _hp;
 	float _fireRange;
 	const int _damage = 10;
+
+	AMyCharacter* _Owner;
 
 	FTimerHandle _fireTimerHandle;
 

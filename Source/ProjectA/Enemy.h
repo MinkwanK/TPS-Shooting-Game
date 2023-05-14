@@ -32,6 +32,8 @@ public:
 	FBodyInstance * RHand;
 	FVector _attackStartPos;
 
+	FTimerHandle _hitTimerHandle;
+
 	AActor* _targetObject;
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
@@ -40,10 +42,14 @@ public:
 	UPROPERTY(BlueprintReadOnly,EditDefaultsOnly)
 	bool _bDead;
 
+	UPROPERTY(BlueprintReadOnly,EditDefaultsOnly)
+	bool _bHit;
+
 	UPROPERTY(EditDefaultsOnly);
 	UAnimMontage* _attackMontage;
-	
-	
+
+	UPROPERTY(EditDefaultsOnly);
+	UAnimMontage* _hitMontage;
 	
 	void DecreaseHP(int value);
 
@@ -55,6 +61,8 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
+
+	inline void HitTimerFunc() {_bHit = false;}
 	
 
 

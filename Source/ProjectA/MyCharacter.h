@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TurretSpawnPoint.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -44,10 +45,23 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	USoundBase* _gunEmptySound;
+
+
+	ATurretSpawnPoint* _turretSpawnPoint;
 	
+	UPROPERTY(BlueprintReadOnly)
 	int _ammo;
+	
 	int _maxAmmo;
+	
+	UPROPERTY(BlueprintReadOnly)
+	int _ammoAmount;
+
+	UPROPERTY(BlueprintReadOnly)
 	int _hp;
+
+	UPROPERTY(BlueprintReadOnly)
+	int _money;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool _bFire;
@@ -60,6 +74,12 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool _bReload;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool _bOverlapTurretItem;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool _bOverlapAmmoBox;
 	
 	FTimerHandle _autoFireTimerHandle;
 	FTimerHandle _reloadTimerHandle;
@@ -77,6 +97,10 @@ public:
 	void Relaod();
 	void ReloadFinished();
 
+	void Interact();
+
+	void NotifyActorBeginOverlap(AActor* OtherActor) override;
+	void NotifyActorEndOverlap(AActor* OtherActor) override;
 	
 
 

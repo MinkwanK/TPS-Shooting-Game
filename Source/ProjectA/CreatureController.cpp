@@ -20,8 +20,8 @@ ACreatureController::ACreatureController()
 {
 
 	// _aIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComp"));
-	// _aiPerceptionStimuliSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIPercetionStimulSorceComp"));
-	//
+	_aiPerceptionStimuliSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIPercetionStimulSorceComp"));
+	
 	// _sight = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 	// _sight->SightRadius = 8000.0f;
 	// _sight->DetectionByAffiliation.bDetectNeutrals = true;
@@ -43,7 +43,11 @@ void ACreatureController::BeginPlay()
 
 	
 	_enemy = Cast<AEnemy>(GetPawn());
-	_targetPlayer = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	if(GetWorld()->GetFirstPlayerController()!= nullptr)
+	{
+		if(GetWorld()->GetFirstPlayerController()->GetPawn()!=nullptr)
+		_targetPlayer = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	}
 	
 	//_aIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this,&ACreatureController::OnTargetPerception);
 	

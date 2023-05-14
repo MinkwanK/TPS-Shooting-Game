@@ -27,12 +27,20 @@ AMyCharacter::AMyCharacter()
 	_springArm -> TargetArmLength  = 300;
 	_springArm->SocketOffset = FVector(0,-100,0);
 	_camera->SetWorldRotation(FRotator(0,0,0));
+
+	_turretSpawnPoint = nullptr;
+	
 	_bDead = false;
 	_bAim = false;
 	_bFire = false;
+	_bOverlapTurretItem = false;
+	_bOverlapAmmoBox = false;
+	
 	_hp = 100;
 	_ammo = 30;
 	_maxAmmo = 30;
+	_money = 120;
+	_ammoAmount = 60;
 }
 
 // Called when the game starts or when spawned
@@ -65,6 +73,8 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 		PlayerInputComponent->BindAction("Aim",IE_Released,this,&AMyCharacter::Aim);
 
 		PlayerInputComponent->BindAction("Reload",IE_Pressed,this,&AMyCharacter::Relaod);
+
+		PlayerInputComponent->BindAction("Interact",IE_Pressed,this,&AMyCharacter::Interact);
 
 	
 		PlayerInputComponent->BindAxis("Move Right",this,&AMyCharacter::MoveRight);
@@ -104,11 +114,11 @@ void AMyCharacter::FirePressed()
 {
 	if(_bAim)
 	{
-		if(_ammo>0)
+		if(_ammo > 0 )
 		{
 			Fire();
 			_bFire = true;
-			GetWorldTimerManager().SetTimer(_autoFireTimerHandle,this,&AMyCharacter::Fire,0.15f,true,0.15f);
+			GetWorldTimerManager().SetTimer(_autoFireTimerHandle,this,&AMyCharacter::Fire,0.10,true,0.10);
 		}
 		else
 		{
@@ -128,7 +138,7 @@ void AMyCharacter::FireReleased()
 //사격
 void AMyCharacter::Fire()
 {
-	if(_ammo > 0)
+	if(_ammo > 0  && _bReload == false)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunSound,GetActorLocation());
 		_ammo -= 1;
@@ -137,7 +147,7 @@ void AMyCharacter::Fire()
 
 	
 		FVector Start = GetMesh()->GetSocketLocation("head");
-		FVector End =  Start + _camera->GetForwardVector() * 5000.0f;
+		FVector End =  Start + _camera->GetForwardVector() * 10000.0f;
 		
 
 		ECollisionChannel Channel = ECollisionChannel::ECC_Visibility;
@@ -147,7 +157,7 @@ void AMyCharacter::Fire()
 
 		GetWorld()->LineTraceSingleByChannel(Hit,Start,End,Channel,QueryParams);
 
-		DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,1.0f);
+		//DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,1.0f);
 
 		if(Hit.GetActor() != nullptr)
 		{
@@ -155,6 +165,11 @@ void AMyCharacter::Fire()
 			{
 				AEnemy* hitEnemy = Cast<AEnemy>(Hit.GetActor());
 				hitEnemy->DecreaseHP(20);
+
+				if(hitEnemy->_hp <=0)
+				{
+					_money += 10;
+				}
 			}
 				
 		}
@@ -179,7 +194,7 @@ void AMyCharacter::Aim()
 	else
 	{
 		_bAim = true;
-		_springArm->TargetArmLength = 150;
+		_springArm->TargetArmLength = 100;
 		GetCharacterMovement()->MaxWalkSpeed = 150;
 	}
 
@@ -188,10 +203,9 @@ void AMyCharacter::Aim()
 //재장전
 void AMyCharacter::Relaod()
 {
-	if(_ammo<30)
+	if(_ammo<30 && _ammoAmount > 0 && _bReload == false )
 	{
 		_bReload = true;
-		_ammo = 0;
 		UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_reloadSound,GetActorLocation());
 		GetWorldTimerManager().SetTimer(_reloadTimerHandle,this,&AMyCharacter::ReloadFinished,2.16f,false);
 	}
@@ -202,8 +216,23 @@ void AMyCharacter::Relaod()
 //몽타쥬 플레이 시간이 지난 뒤에 이 함수를 실행하여 장전 완료
 void AMyCharacter::ReloadFinished()
 {
-	_ammo= 30;
-	_bReload = false;
+
+	if(_ammoAmount > 30)
+	{
+		_ammoAmount -= _maxAmmo -_ammo;
+		_ammo = 30;
+		_bReload = false;
+	}
+	else
+	{
+		_ammo = _ammoAmount;
+		_ammoAmount = 0;
+		_bReload = false;
+		
+	}
+
+	
+
 }
 
 
@@ -218,4 +247,57 @@ void AMyCharacter::DecreaseHP(int value)
 		this->Controller->Destroy();
 	}
 }
+
+void AMyCharacter::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	if(OtherActor->ActorHasTag("TurretSpawn"))
+	{
+		_bOverlapTurretItem = true;
+		_turretSpawnPoint = Cast<ATurretSpawnPoint>(OtherActor);
+	}
+	
+	else if(OtherActor->ActorHasTag("AmmoBox"))
+    {
+    	_bOverlapAmmoBox = true;
+    }
+}
+
+void AMyCharacter::NotifyActorEndOverlap(AActor* OtherActor)
+{
+	if(OtherActor->ActorHasTag("TurretSpawn"))
+	{
+		_bOverlapTurretItem = false;
+		_turretSpawnPoint = nullptr;
+	}
+
+	if(OtherActor->ActorHasTag("AmmoBox"))
+	{
+		_bOverlapAmmoBox = false;
+	}
+}
+
+void AMyCharacter::Interact()
+{
+	if(_bOverlapTurretItem == true)
+	{
+		if(_money >= 120)
+		{
+			if(_turretSpawnPoint!=nullptr)
+			{
+				_turretSpawnPoint->SpawnTurret();
+				_money -= 120;
+			}
+		}
+	}
+
+	else if(_bOverlapAmmoBox==true)
+	{
+		if(_money >= 30)
+		{
+			_ammoAmount += 30;
+			_money -= 30;
+		}
+	}
+}
+
 

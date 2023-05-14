@@ -9,6 +9,7 @@
 
 
 #include "DrawDebugHelpers.h"
+#include "MyCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Perception/AISenseConfig.h"
 #include "Perception/AISenseConfig_Sight.h"
@@ -31,12 +32,12 @@ ASmallTurret::ASmallTurret()
 	_sight = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 	_sight->SightRadius = 5000.0f;
 	_sight->LoseSightRadius = 5000.0f;
-	_sight->SetMaxAge(1.5);
+	_sight->SetMaxAge(5.0);
 	_sight->PeripheralVisionAngleDegrees = 130;
 	//범위 내에 이미 인지된 액터를  영원히 기억할지 말지?
 	_sight->AutoSuccessRangeFromLastSeenLocation = -1;
 	//근거리시야반경
-	_sight->NearClippingRadius = 1000;
+	_sight->NearClippingRadius = 0;
 	_sight->DetectionByAffiliation.bDetectNeutrals = true;
 	_sight->DetectionByAffiliation.bDetectEnemies = true;
 	_sight->DetectionByAffiliation.bDetectFriendlies = true;
@@ -48,9 +49,11 @@ ASmallTurret::ASmallTurret()
 	//_aiPerceptionComp->OnPerceptionUpdated.AddDynamic(this,&ASmallTurret::OnPerceptionUpdated);
 	
 
-	
+	_Owner = nullptr;
 	_targetEnemy = nullptr;
 	_bCanFire = false;
+
+	
 
 	
 }
@@ -63,7 +66,7 @@ void ASmallTurret::BeginPlay()
 	//UE_LOG(LogTemp,Display,TEXT("Begin"));
 
 	
-
+	_Owner = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	_turretRotation = GetActorRotation();
 	
 }
@@ -98,7 +101,7 @@ void ASmallTurret::OnTargetPerception(AActor* Actor, FAIStimulus Stimulus)
 	//인지한 Actor가 Enemy라면 타겟 설정
 	if(Cast<AEnemy>(Actor) != nullptr)
 	{
-		if(Cast<AEnemy>(Actor)->AIControllerClass != nullptr)
+		if(Cast<AEnemy>(Actor)->Controller != nullptr)
 		{
 			//인지한 Actor를 타겟 배열에 Push
 			_targetEnemy = Cast<AEnemy>(Actor);
@@ -117,9 +120,7 @@ void ASmallTurret::Aim()
 	//방향벡터를 Rotation으로 전환
 	_targetDirection = _targetEnemy->GetActorLocation() - GetActorLocation();
 	_targetRotation = _targetDirection.Rotation();
-
 	
-
 	//터렛을 사실적으로 천천히 회전하고싶다.
 	
 	_gunL = GetMesh()->GetSocketLocation("gunL");
@@ -139,19 +140,21 @@ void ASmallTurret::Aim()
 
 }
 
-//터렛을 천천히 타겟을 향해 회전시킨다.
+//터렛을 천천히 타겟을 향해 회전시킨다. (수정 필요)
 void ASmallTurret::Turn_Turret()
 {
+
 	
 	if(_targetRotation.Pitch > _turretRotation.Pitch)
 	{
-		_turretRotation.Pitch += 1.0f;
+		_turretRotation.Pitch += 0.1f;
 	}
 	else
 	{
-		_turretRotation.Pitch -= 1.0f;
+		_turretRotation.Pitch -= 0.1f;
 	}
 	
+
 	if(_targetRotation.Yaw > _turretRotation.Yaw)
 	{
 		_turretRotation.Yaw += 1.0f;
@@ -160,11 +163,17 @@ void ASmallTurret::Turn_Turret()
 	{
 		_turretRotation.Yaw -= 1.0f;
 	}
+	
 
-	//UE_LOG(LogTemp,Display,TEXT("Target Rotation Yaw:: %f, Turret Rotation Yaw:: %f"),_targetRotation.Yaw,_turretRotation.Yaw);
-	//UE_LOG(LogTemp,Display,TEXT("Target Rotation Pitch:: %f, Turret Rotation Pitch:: %f"),_targetRotation.Pitch,_turretRotation.Pitch);
+
+
+	
 	const int resultYaw = _turretRotation.Yaw - _targetRotation.Yaw;
 	const int resultPitch = _turretRotation.Pitch - _targetRotation.Pitch;
+	// UE_LOG(LogTemp,Display,TEXT("Target Rotation Yaw:: %f, Turret Rotation Yaw:: %f"),_targetRotation.Yaw,_turretRotation.Yaw);
+	// UE_LOG(LogTemp,Display,TEXT("resultYaw :: %d"),resultYaw);
+	// UE_LOG(LogTemp,Display,TEXT("Target Rotation Pitch:: %f, Turret Rotation Pitch:: %f"),_targetRotation.Pitch,_turretRotation.Pitch);
+	// UE_LOG(LogTemp,Display,TEXT("resultPitch :: %d"),resultPitch);
 
 	if(resultYaw == 0 && resultPitch == 0)
 	{
@@ -202,8 +211,10 @@ void ASmallTurret::Fire(const FVector socketVec)
 			
 				if(hitEnemy->_hp <=0)
 				{
+					
 					_targetEnemy = nullptr;
 					_bCanFire = false;
+					_Owner->_money += 10;
 
 				}
 			

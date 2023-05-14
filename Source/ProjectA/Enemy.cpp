@@ -25,11 +25,12 @@ AEnemy::AEnemy()
  	
 	PrimaryActorTick.bCanEverTick = true;
 	
-	GetCharacterMovement()->MaxWalkSpeed = 200;
+	GetCharacterMovement()->MaxWalkSpeed = 300;
 
 	_hp = 100;
 	_bCanAttack = false;
 	_bDead = false;
+	_bHit = false;
 
 	
 
@@ -40,7 +41,13 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	_targetObject = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+	if(GetWorld()->GetFirstPlayerController() != nullptr)
+	{
+		if(GetWorld()->GetFirstPlayerController()->GetPawn() != nullptr)
+		{
+			_targetObject = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+		}
+	}
 	RHand = GetMesh()->GetBodyInstance("hand_r");
 	PostInitializeComponents();
 
@@ -79,6 +86,13 @@ void AEnemy::Tick(float DeltaTime)
 				UE_LOG(LogTemp,Log,TEXT("Montage Play"));
 			}
 		}
+		if(_bHit)
+		{
+			if(animInstance->Montage_GetIsStopped(_hitMontage))
+			{
+				animInstance->Montage_Play(_hitMontage);
+			}
+		}
 	}
 
 
@@ -98,15 +112,21 @@ void AEnemy::DecreaseHP(const int value)
 	if(!_bDead)
 	{
 		_hp -= value;
-	
+		_bHit = true;
 		if(_hp <= 0)
 		{
 			_bDead = true;
+
+			ACreatureController* creatureController = Cast<ACreatureController>(this->Controller);
+			creatureController->_aiPerceptionStimuliSourceComponent->UnregisterFromPerceptionSystem();
 			this->AIControllerClass = nullptr;
 			this->Controller->Destroy();
 			this->SetActorEnableCollision(false);
 		}
 	}
+	
+	GetWorldTimerManager().SetTimer(_hitTimerHandle,this,&AEnemy::HitTimerFunc,_hitMontage->GetPlayLength(),false);
+
 }
 
 bool AEnemy::FireRay()
@@ -125,7 +145,7 @@ bool AEnemy::FireRay()
 
 	GetWorld()->LineTraceSingleByChannel(Hit,Start,End,Channel,QueryParams);
 
-	DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,0.1f);
+	//DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,0.1f);
 
 	if(Hit.GetActor()!=nullptr)
 	{
@@ -168,24 +188,24 @@ void AEnemy::AttackEnd()
 	{
 		if(hits[i].GetActor()!=nullptr)
 		{
-	
-			if(hits[i].GetActor()->ActorHasTag("Turret"))
-			{
-				ASmallTurret* SmallTurret = Cast<ASmallTurret>(hit.GetActor());
-		
-				if(SmallTurret != nullptr && SmallTurret->_hp > 0)
-				{
-					SmallTurret->DecreaseHP(20);
-
-					if(SmallTurret->_hp <= 0)
-					{
-						_bCanAttack = false;
-					}
-				
-				}
-				
-				break;
-			}
+			//터렛 공격 기능은 추후 개발
+			// if(hits[i].GetActor()->ActorHasTag("Turret"))
+			// {
+			// 	ASmallTurret* SmallTurret = Cast<ASmallTurret>(hit.GetActor());
+			//
+			// 	if(SmallTurret != nullptr && SmallTurret->_hp > 0)
+			// 	{
+			// 		SmallTurret->DecreaseHP(20);
+			//
+			// 		if(SmallTurret->_hp <= 0)
+			// 		{
+			// 			_bCanAttack = false;
+			// 		}
+			// 	
+			// 	}
+			// 	
+			// 	break;
+			// }
 
 			if(hits[i].GetActor()->ActorHasTag("Player"))
 			{
@@ -207,5 +227,5 @@ void AEnemy::AttackEnd()
 		}
 	}
 
-	DrawDebugLine(GetWorld(), _attackStartPos, T.GetLocation(), FColor::Emerald, false, 3.0f, 0, 10);
+	//DrawDebugLine(GetWorld(), _attackStartPos, T.GetLocation(), FColor::Emerald, false, 3.0f, 0, 10);
 }
