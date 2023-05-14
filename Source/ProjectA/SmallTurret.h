@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Enemy.h"
 #include "GameFramework/Character.h"
-#include "Perception/AIPerceptionComponent.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "SmallTurret.generated.h"
 
@@ -40,12 +39,15 @@ public:
 	void Fire(const FVector socketVec);
 
 
+
 	//인지된 하나의 TargetActor return
 	UFUNCTION()
 	void OnTargetPerception(AActor* Actor, FAIStimulus Stimulus);
 
 	UFUNCTION()
 	void Turn_Turret();
+
+	void DecreaseHP(int value);
 	
 	//UFUNCTION()
 	//void OnPerceptionUpdated(TArray<AActor*> const& UpdatedActors);
@@ -56,8 +58,13 @@ public:
 	float _fireRange;
 	const int _damage = 10;
 
+	FTimerHandle _fireTimerHandle;
+
 	UPROPERTY(BlueprintReadOnly)
 	bool _bCanFire;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool _bDead;
 
 	FVector _gunL;
 	FVector _gunR;

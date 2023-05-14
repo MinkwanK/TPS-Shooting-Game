@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CreatureController.h"
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
@@ -20,25 +19,53 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void DecreaseHP(int value);
+public:	
 
-
-public:
 	int _hp;
-	const int _damage = 10;
+	UAnimInstance* animInstance;
+	FBodyInstance * RHand;
+	FVector _attackStartPos;
+
+	AActor* _targetObject;
+
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	bool _bCanAttack;
 
 	UPROPERTY(BlueprintReadOnly,EditDefaultsOnly)
 	bool _bDead;
 
+	UPROPERTY(EditDefaultsOnly);
+	UAnimMontage* _attackMontage;
+	
+	
+	
+	void DecreaseHP(int value);
+
+	bool FireRay();
+	
+	UFUNCTION(BlueprintCallable)
+	void AttackStart();
+
+	
+	UFUNCTION(BlueprintCallable)
+	void AttackEnd();
+	
 
 
+
+	
+	virtual void PostInitializeComponents() override;
+	
+
+
+
+	
 
 	
 	

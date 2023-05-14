@@ -13,6 +13,7 @@
 #include "Perception/AISenseConfig.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Kismet/KismetMaterialLibrary.h"
+#include "Perception/AIPerceptionComponent.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 
 // Sets default values
@@ -72,7 +73,7 @@ void ASmallTurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
+	//UE_LOG(LogTemp,Log,TEXT("turret hp %d"),_hp)
 	if(_targetEnemy != nullptr)
 	{
 		Aim();
@@ -92,7 +93,7 @@ void ASmallTurret::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void ASmallTurret::OnTargetPerception(AActor* Actor, FAIStimulus Stimulus)
 {
-	UE_LOG(LogTemp,Display,TEXT("Perception Updated"));
+	//UE_LOG(LogTemp,Display,TEXT("Perception Updated"));
 	
 	//인지한 Actor가 Enemy라면 타겟 설정
 	if(Cast<AEnemy>(Actor) != nullptr)
@@ -101,7 +102,7 @@ void ASmallTurret::OnTargetPerception(AActor* Actor, FAIStimulus Stimulus)
 		{
 			//인지한 Actor를 타겟 배열에 Push
 			_targetEnemy = Cast<AEnemy>(Actor);
-			UE_LOG(LogTemp,Display,TEXT("Target Enemy::  %s"),*_targetEnemy->GetName());
+			
 		}
 	
 	}
@@ -129,7 +130,6 @@ void ASmallTurret::Aim()
 	{
 		Fire(_gunL);
 		Fire(_gunR);
-	
 	}
 	else
 	{
@@ -188,10 +188,10 @@ void ASmallTurret::Fire(const FVector socketVec)
 		FCollisionQueryParams QueryParams;
 
 		QueryParams.AddIgnoredActor(this);
-
+		
 		GetWorld()->LineTraceSingleByChannel(Hit,Start,End,Channel,QueryParams);
 
-		DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,1.0f);
+		//DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,1.0f);
 
 		if(Hit.GetActor() != nullptr)
 		{
@@ -205,15 +205,31 @@ void ASmallTurret::Fire(const FVector socketVec)
 					_targetEnemy = nullptr;
 					_bCanFire = false;
 
-					
-					
-					
 				}
 			
 			}
 		}
 	}
 
+	
+}
+
+
+void ASmallTurret::DecreaseHP(int value)
+{
+	_hp -= value;
+
+	if(_hp <= 0)
+	{
+		_hp = 0;
+		_bDead = true;
+		
+		this->Controller->Destroy();
+		this->_aiPerceptionComp->DestroyComponent();
+		this->_aiPerceptionStimulSourceComp->UnregisterFromPerceptionSystem();
+
+		
+	}
 	
 }
 

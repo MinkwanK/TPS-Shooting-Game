@@ -3,13 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BehaviorTreeComponent.h"
-#include "BehaviorTree/BlackBoardComponent.h"
-#include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Perception/AIPerceptionTypes.h"
 #include "AIController.h"
+#include "Enemy.h"
+#include "MyCharacter.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "CreatureController.generated.h"
 
@@ -28,60 +26,37 @@ class PROJECTA_API ACreatureController : public AAIController
 
 public:
 	ACreatureController();
-
-
-	//FORCEINLINE UBlackboardComponent* GetBlackboardComp() const { return _blackboardComponent; }
-
-	UPROPERTY(EditDefaultsOnly)
-	class AEnemy* Agent;
-
-	UFUNCTION()
-	void OnTargetPerception(AActor* Actor, FAIStimulus Stimulus); //인지된 하나의 타겟 액터만 리턴한다.
-
 	
-	
-	class UAISenseConfig_Sight* _sight; //시야 감각을 위함.
+
+	// UFUNCTION()
+	// void OnTargetPerception(AActor* Actor, FAIStimulus Stimulus); //인지된 하나의 타겟 액터만 리턴한다.
+
+	void MoveToTarget();
+
+
+
 
 
 protected:
 	
-
 	
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaSeconds) override;
 	
-
-	//우리가 컨트롤하고 싶은 액터가 스폰되면 이 함수가 실행된다. 이 함수안에서 블랙보드와 비헤비어트리를 초기화 합니다.
-	
-	virtual void OnPossess(APawn* InPawn) override;
-
-public:	
-
-	
-
-
 public:
+	AMyCharacter* _targetPlayer;
+	AEnemy* _enemy;
+
+		
+	// class UAISenseConfig_Sight* _sight; //시야 감각을 위함.
+	//
+	// UPROPERTY(EditDefaultsOnly)
+	// UAIPerceptionComponent* _aIPerceptionComponent;
+	//
+	// UPROPERTY(EditDefaultsOnly)
+	// UAIPerceptionStimuliSourceComponent* _aiPerceptionStimuliSourceComponent;
 	
-	UPROPERTY(EditDefaultsOnly)
-	UBehaviorTree* _behaviorTree;
 
-	
-	//BehaviorTree Reference
-	UPROPERTY(EditDefaultsOnly)
-	UBehaviorTreeComponent* _behaviorTreeComponent;
-
-	//Blackboard Component Reference
-	UPROPERTY(EditDefaultsOnly)
-	UBlackboardComponent* _blackboardComponent;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAIPerceptionComponent* _aIPerceptionComponent;
-
-	UPROPERTY(EditDefaultsOnly)
-	UAIPerceptionStimuliSourceComponent* _aiPerceptionStimuliSourceComponent;
-	
-	//Blackboard Key
-	UPROPERTY(EditDefaultsOnly)
-	FName LocationToGoKey;
 	
 
 
