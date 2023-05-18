@@ -6,6 +6,6 @@
 /NAME:"UE4Editor-RiderBlueprint.dll"
 /IGNORE:4221
 /NODEFAULTLIB
-"D:\Development\UnrealProject\ProjectA\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderBlueprint\Module.RiderBlueprint.cpp.obj"
-"D:\Development\UnrealProject\ProjectA\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderBlueprint\Default.rc2.res"
-/OUT:"D:\Development\UnrealProject\ProjectA\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderBlueprint\UE4Editor-RiderBlueprint.lib"
+"D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderBlueprint\Module.RiderBlueprint.cpp.obj"
+"D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderBlueprint\Default.rc2.res"
+/OUT:"D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderBlueprint\UE4Editor-RiderBlueprint.lib"

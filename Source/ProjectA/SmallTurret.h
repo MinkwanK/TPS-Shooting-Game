@@ -37,9 +37,7 @@ public:
 
 public:
 	void Aim();
-	void Fire(const FVector socketVec);
-
-
+	void Fire();
 
 	//인지된 하나의 TargetActor return
 	UFUNCTION()
@@ -49,19 +47,25 @@ public:
 	void Turn_Turret();
 
 	void DecreaseHP(int value);
-	
-	//UFUNCTION()
-	//void OnPerceptionUpdated(TArray<AActor*> const& UpdatedActors);
+
 public:
 	const int _maxAmmo = 30;
 	int _ammo;
 	int _hp;
 	float _fireRange;
-	const int _damage = 10;
+
+	const int _damage = 20;
+	
 
 	AMyCharacter* _Owner;
-
+	
+	UPROPERTY(EditDefaultsOnly)
+	AEnemy* _targetEnemy;
+	
 	FTimerHandle _fireTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly)
+	USoundBase* _fireSound;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool _bCanFire;
@@ -71,14 +75,9 @@ public:
 
 	FVector _gunL;
 	FVector _gunR;
-
-	
-	UPROPERTY(EditDefaultsOnly)
-	AEnemy* _targetEnemy;
-	
 	FVector _targetDirection;
 
-	UPROPERTY(EditDefaultsOnly,BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly)
 	FRotator _turretRotation;
 
 	FRotator _targetRotation;

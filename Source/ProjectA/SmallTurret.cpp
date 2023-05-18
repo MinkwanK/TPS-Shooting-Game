@@ -11,13 +11,19 @@
 #include "DrawDebugHelpers.h"
 #include "MyCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Kismet/GameplayStatics.h"
 #include "Perception/AISenseConfig.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "Kismet/KismetMaterialLibrary.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 
-// Sets default values
+
+/*
+ onTargetPerception으로 필요한 Target 정보를 받는다. 이를 target에 등록
+ 포탑을 target 방향으로 회전. 회전 각도가 일치하면 사격 실시.
+ 사격은 0.15초 간격으로 번갈아 실시
+ */
 ASmallTurret::ASmallTurret()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -31,9 +37,10 @@ ASmallTurret::ASmallTurret()
 
 	_sight = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 	_sight->SightRadius = 5000.0f;
-	_sight->LoseSightRadius = 5000.0f;
+	//인지한 액터를 바로 잊어버리기 때문에 빠르게 적 탐지 가능
+	_sight->LoseSightRadius = 5000;
 	_sight->SetMaxAge(5.0);
-	_sight->PeripheralVisionAngleDegrees = 130;
+	_sight->PeripheralVisionAngleDegrees = 180;
 	//범위 내에 이미 인지된 액터를  영원히 기억할지 말지?
 	_sight->AutoSuccessRangeFromLastSeenLocation = -1;
 	//근거리시야반경
@@ -62,16 +69,18 @@ ASmallTurret::ASmallTurret()
 void ASmallTurret::BeginPlay()
 {
 	Super::BeginPlay();
-
 	//UE_LOG(LogTemp,Display,TEXT("Begin"));
 
 	
 	_Owner = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	_turretRotation = GetActorRotation();
+	_gunL = GetMesh()->GetSocketLocation("gunL");
+	_gunR = GetMesh()->GetSocketLocation("gunR");
+
 	
 }
 
-// Called every frame
+// 사격 가능 상태인지를 매번 확인하고 사격 실시.
 void ASmallTurret::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -122,20 +131,10 @@ void ASmallTurret::Aim()
 	_targetRotation = _targetDirection.Rotation();
 	
 	//터렛을 사실적으로 천천히 회전하고싶다.
-	
-	_gunL = GetMesh()->GetSocketLocation("gunL");
-	_gunR = GetMesh()->GetSocketLocation("gunR");
-
 	//터렛이 타겟 액터를 완벽히 조준 했을 때 사격 실시.
-	if(_bCanFire)
-	{
-		Fire(_gunL);
-		Fire(_gunR);
-	}
-	else
-	{
-		Turn_Turret();
-	}
+	
+	Turn_Turret();
+	
 	
 
 }
@@ -163,11 +162,7 @@ void ASmallTurret::Turn_Turret()
 	{
 		_turretRotation.Yaw -= 1.0f;
 	}
-	
 
-
-
-	
 	const int resultYaw = _turretRotation.Yaw - _targetRotation.Yaw;
 	const int resultPitch = _turretRotation.Pitch - _targetRotation.Pitch;
 	// UE_LOG(LogTemp,Display,TEXT("Target Rotation Yaw:: %f, Turret Rotation Yaw:: %f"),_targetRotation.Yaw,_turretRotation.Yaw);
@@ -179,50 +174,72 @@ void ASmallTurret::Turn_Turret()
 	{
 		_bCanFire = true;
 	}
-	
-}
-
-
-void ASmallTurret::Fire(const FVector socketVec)
-{
-	if(_targetEnemy != nullptr)
+	else
 	{
-		//UE_LOG(LogTemp,Display,TEXT("Fire"));
-		FHitResult Hit;
-	
-		FVector Start = socketVec;
-		FVector End =  _targetEnemy->GetActorLocation();
+		_bCanFire = false;
+	}
 
-		ECollisionChannel Channel = ECollisionChannel::ECC_Visibility;
-		FCollisionQueryParams QueryParams;
-
-		QueryParams.AddIgnoredActor(this);
-		
-		GetWorld()->LineTraceSingleByChannel(Hit,Start,End,Channel,QueryParams);
-
-		//DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,1.0f);
-
-		if(Hit.GetActor() != nullptr)
+	if(_bCanFire)
+	{
+		//타이머가 작동중이라면?
+		if ( !GetWorldTimerManager().IsTimerActive(_fireTimerHandle) ) 
 		{
-			if(Hit.GetActor()->ActorHasTag("Enemy"))
-			{
-				AEnemy* hitEnemy = Cast<AEnemy>(Hit.GetActor());
-				hitEnemy->DecreaseHP(1);
-			
-				if(hitEnemy->_hp <=0)
-				{
-					
-					_targetEnemy = nullptr;
-					_bCanFire = false;
-					_Owner->_money += 10;
-
-				}
-			
-			}
+			GetWorldTimerManager().SetTimer(_fireTimerHandle,this,&ASmallTurret::Fire,0.15f,false,0.15f);
 		}
 	}
 
 	
+}
+
+
+void ASmallTurret::Fire()
+{
+	for(int i=0;i<2;i++)
+	{
+		if(_targetEnemy!=nullptr)
+		{
+			UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_fireSound,GetActorLocation());
+			_gunL = GetMesh()->GetSocketLocation("gunL");
+			_gunR = GetMesh()->GetSocketLocation("gunR");
+
+
+			//UE_LOG(LogTemp,Display,TEXT("Fire"));
+			FHitResult Hit;
+
+			FVector Start = _gunL;
+			if(i==1)
+				Start = _gunR;
+			
+			FVector End =  _targetEnemy->GetActorLocation();
+
+			ECollisionChannel Channel = ECollisionChannel::ECC_Visibility;
+			FCollisionQueryParams QueryParams;
+
+			QueryParams.AddIgnoredActor(this);
+	
+			GetWorld()->LineTraceSingleByChannel(Hit,Start,End,Channel,QueryParams);
+
+			DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,1.0f);
+
+			if(Hit.GetActor() != nullptr)
+			{
+				if(Hit.GetActor()->ActorHasTag("Enemy"))
+				{
+					AEnemy* hitEnemy = Cast<AEnemy>(Hit.GetActor());
+					hitEnemy->DecreaseHP(_damage);
+		
+					if(hitEnemy->_hp <=0)
+					{
+						_targetEnemy = nullptr;
+						_bCanFire = false;
+						_Owner->_money += 10;
+
+					}
+		
+				}
+			}
+		}
+	}
 }
 
 
@@ -237,14 +254,5 @@ void ASmallTurret::DecreaseHP(int value)
 		
 		this->Controller->Destroy();
 		this->_aiPerceptionComp->DestroyComponent();
-		this->_aiPerceptionStimulSourceComp->UnregisterFromPerceptionSystem();
-
-		
 	}
-	
 }
-
-
-
-
-
