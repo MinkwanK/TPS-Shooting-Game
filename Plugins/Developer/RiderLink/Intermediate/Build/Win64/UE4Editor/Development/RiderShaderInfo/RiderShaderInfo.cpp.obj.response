@@ -39,16 +39,16 @@
 /I Runtime\Json\Public
 /I Runtime\RenderCore\Public
 /I Runtime\RHI\Public
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source
-/I "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\INCLUDE"
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source
+/I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\INCLUDE"
 /I "C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\ucrt"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\winrt"
-"D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderShaderInfo\RiderShaderInfo.cpp"
-/FI"D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderShaderInfo\Definitions.h"
-/Fo"D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderShaderInfo\RiderShaderInfo.cpp.obj"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt"
+"D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderShaderInfo\RiderShaderInfo.cpp"
+/FI"D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderShaderInfo\Definitions.h"
+/Fo"D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderShaderInfo\RiderShaderInfo.cpp.obj"
 /TP
 /GR-
 /W4

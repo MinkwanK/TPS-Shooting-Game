@@ -44,6 +44,7 @@ protected:
 	virtual void Tick(float DeltaSeconds) override;
 	
 public:
+	AGameStageTimer* _gameStageTimer;
 	AMyCharacter* _targetPlayer;
 	AEnemy* _enemy;
 

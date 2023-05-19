@@ -3,9 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MyCharacter.h"
 #include "GameFramework/Actor.h"
 #include "GameStageTimer.generated.h"
+
+UENUM(BlueprintType)
+enum class EInGameState : uint8
+{
+	GameReadyState UMETA (DisplayName = "GameReadyState"),
+	GameStartState UMETA (DisplayName = "GameStartState"),
+	GameRestState  UMETA (DisplayName = "GameRestState"),
+	GameEndState UMETA (DisplayName = "GameEndState"),
+	
+};
+
 
 UCLASS()
 class PROJECTA_API AGameStageTimer : public AActor
@@ -23,8 +33,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	AMyCharacter* _myCharacter;
+	
 
 	UPROPERTY(BlueprintReadOnly)
 	FTimerHandle _stageReadyTimerHandle;
@@ -33,8 +42,14 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	FTimerHandle _stageRestTimerHandle;
 
-	void StageReady();
-	void StageStart();
-	void StageRest();
+	UPROPERTY(BlueprintReadOnly)
+	int _stageNum;
+
+	void StageReadyEnd();
+	void StageStartEnd();
+	void StageRestEnd();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EInGameState InGameEnum;
 
 };

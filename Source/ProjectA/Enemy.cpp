@@ -10,13 +10,13 @@
 
 /*
 	Enemy의 행동로직
-Friendly 태그를 가진 액터를 만나면 target으로 저장하고 추격한다. (추격중인 target이 사망하면 새로운 target을 추격한다.)
+	Friendly 태그를 가진 액터를 만나면 target으로 저장하고 추격한다. (추격중인 target이 사망하면 새로운 target을 추격한다.)
 
-현재 방식 -> 인지된 터렛을 무작정 쫓아 때리는 방식
-새로운 방식 ? -> 맵안의 Player의 위치를 아는 적들. Player를 추격한다. 터렛과 일정 거리 범위로 가까워지면 터렛을 공격한다. 이게 디펜스 게임
-방식에 어울리고 구현도 더 쉽지 않을까?
+	현재 방식 -> 인지된 터렛을 무작정 쫓아 때리는 방식
+	새로운 방식 ? -> 맵안의 Player의 위치를 아는 적들. Player를 추격한다. 터렛과 일정 거리 범위로 가까워지면 터렛을 공격한다. 이게 디펜스 게임
+	방식에 어울리고 구현도 더 쉽지 않을까?
 
-즉, 모든 Enemy들은 태어날 때부터 Player의 위치를 파악하고 있다. 무작정 Player를 추격하기 시작한다.
+	즉, 모든 Enemy들은 태어날 때부터 Player의 위치를 파악하고 있다. 무작정 Player를 추격하기 시작한다.
 
 */
 
@@ -48,6 +48,9 @@ void AEnemy::BeginPlay()
 			_targetObject = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 		}
 	}
+
+	_gameStageTimer = Cast<AGameStageTimer>(UGameplayStatics::GetActorOfClass(GetWorld(),AGameStageTimer::StaticClass()));
+	
 	RHand = GetMesh()->GetBodyInstance("hand_r");
 	PostInitializeComponents();
 
@@ -95,6 +98,13 @@ void AEnemy::Tick(float DeltaTime)
 		}
 	}
 
+	if(_gameStageTimer!=nullptr)
+	{
+		if(_gameStageTimer->InGameEnum == EInGameState::GameRestState)
+		{
+			this->Destroy();
+		}
+	}
 
 
 }
@@ -215,7 +225,7 @@ void AEnemy::AttackEnd()
 				if(myCharacter != nullptr && myCharacter->_hp > 0)
 				{
 					UE_LOG(LogTemp,Log,TEXT("Player got damage"));
-					myCharacter->DecreaseHP(50);
+					myCharacter->DecreaseHP(20);
 
 					if(myCharacter<=0)
 					{

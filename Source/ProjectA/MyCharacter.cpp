@@ -35,6 +35,7 @@ AMyCharacter::AMyCharacter()
 	_bFire = false;
 	_bOverlapTurretItem = false;
 	_bOverlapAmmoBox = false;
+	_bPaused = false;
 	
 	_hp = 100;
 	_ammo = 30;
@@ -47,6 +48,8 @@ AMyCharacter::AMyCharacter()
 void AMyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	_gameStageTimer = Cast<AGameStageTimer>(UGameplayStatics::GetActorOfClass(GetWorld(),AGameStageTimer::StaticClass()));
 	
 }
 
@@ -61,70 +64,108 @@ void AMyCharacter::Tick(float DeltaTime)
 void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	PlayerInputComponent->BindAction("Jump",IE_Pressed,this,&AMyCharacter::Jump);
+	PlayerInputComponent->BindAction("Jump",IE_Released,this,&AMyCharacter::StopJumping);
 
-		Super::SetupPlayerInputComponent(PlayerInputComponent);
-		PlayerInputComponent->BindAction("Jump",IE_Pressed,this,&AMyCharacter::Jump);
-		PlayerInputComponent->BindAction("Jump",IE_Released,this,&AMyCharacter::StopJumping);
+	PlayerInputComponent->BindAction("Fire",IE_Pressed,this,&AMyCharacter::FirePressed);
+	PlayerInputComponent->BindAction("Fire",IE_Released,this,&AMyCharacter::AMyCharacter::FireReleased);
 
-		PlayerInputComponent->BindAction("Fire",IE_Pressed,this,&AMyCharacter::FirePressed);
-		PlayerInputComponent->BindAction("Fire",IE_Released,this,&AMyCharacter::AMyCharacter::FireReleased);
+	PlayerInputComponent->BindAction("Aim",IE_Pressed,this,&AMyCharacter::Aim);
+	PlayerInputComponent->BindAction("Aim",IE_Released,this,&AMyCharacter::Aim);
 
-		PlayerInputComponent->BindAction("Aim",IE_Pressed,this,&AMyCharacter::Aim);
-		PlayerInputComponent->BindAction("Aim",IE_Released,this,&AMyCharacter::Aim);
+	PlayerInputComponent->BindAction("Reload",IE_Pressed,this,&AMyCharacter::Relaod);
 
-		PlayerInputComponent->BindAction("Reload",IE_Pressed,this,&AMyCharacter::Relaod);
+	PlayerInputComponent->BindAction("Interact",IE_Pressed,this,&AMyCharacter::Interact);
 
-		PlayerInputComponent->BindAction("Interact",IE_Pressed,this,&AMyCharacter::Interact);
 
+
+	PlayerInputComponent->BindAxis("Move Right",this,&AMyCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("Move Forward",this,&AMyCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("Turn",this,&AMyCharacter::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("Look Up",this,&AMyCharacter::AddControllerPitchInput);
 	
-		PlayerInputComponent->BindAxis("Move Right",this,&AMyCharacter::MoveRight);
-		PlayerInputComponent->BindAxis("Move Forward",this,&AMyCharacter::MoveForward);
-		PlayerInputComponent->BindAxis("Turn",this,&AMyCharacter::AddControllerYawInput);
-		PlayerInputComponent->BindAxis("Look Up",this,&AMyCharacter::AddControllerPitchInput);
-
-
-
+		
 }
-
 
 void AMyCharacter::MoveRight(float Value)
 {
-	if(Controller != nullptr && Value != 0.0f)
+	if(_gameStageTimer != nullptr)
 	{
-		const FRotator YawRotation(0,Controller->GetControlRotation().Yaw,0); //카메라가 바라보는 방향을 기준으로 캐릭터가 이동하기 위해서 yaw값을 구한다.
-		const FVector Direction = UKismetMathLibrary::GetRightVector(YawRotation); //YawRotation을 가리키는 벡터를 구한다.
-		AddMovementInput(Direction,Value);
+		if(_gameStageTimer->InGameEnum != EInGameState::GameReadyState )
+			if(Controller != nullptr && Value != 0.0f)
+			{
+				const FRotator YawRotation(0,Controller->GetControlRotation().Yaw,0); //카메라가 바라보는 방향을 기준으로 캐릭터가 이동하기 위해서 yaw값을 구한다.
+				const FVector Direction = UKismetMathLibrary::GetRightVector(YawRotation); //YawRotation을 가리키는 벡터를 구한다.
+				AddMovementInput(Direction,Value);
+			}
 	}
 }
 
 void AMyCharacter::MoveForward(float Value)
 {
-	if(Controller != nullptr && Value != 0.0f)
+	if(_gameStageTimer != nullptr)
 	{
-		const FRotator YawRotation(0,Controller->GetControlRotation().Yaw,0); //카메라가 바라보는 방향을 기준으로 캐릭터가 이동하기 위해서 yaw값을 구한다.
-		const FVector Direction = UKismetMathLibrary::GetForwardVector(YawRotation); //YawRotation을 가리키는 벡터를 구한다.
-		AddMovementInput(Direction,Value);
+		if(_gameStageTimer->InGameEnum != EInGameState::GameReadyState )
+			if(Controller != nullptr && Value != 0.0f)
+			{
+				const FRotator YawRotation(0,Controller->GetControlRotation().Yaw,0); //카메라가 바라보는 방향을 기준으로 캐릭터가 이동하기 위해서 yaw값을 구한다.
+				const FVector Direction = UKismetMathLibrary::GetForwardVector(YawRotation); //YawRotation을 가리키는 벡터를 구한다.
+				AddMovementInput(Direction,Value);
 
 
+			}
 	}
 }
+
+
+//조준을 해야 사격이 가능하다. 조준 시 속도 저하
+void AMyCharacter::Aim()
+{
+	if(_gameStageTimer != nullptr)
+	{
+		if(_gameStageTimer->InGameEnum != EInGameState::GameReadyState )
+		{
+			if(_bAim)
+			{
+				_bAim = false;
+				_springArm->TargetArmLength = 300;
+				GetCharacterMovement()->MaxWalkSpeed = 600;
+			}
+			else
+			{
+				_bAim = true;
+				_springArm->TargetArmLength = 100;
+				GetCharacterMovement()->MaxWalkSpeed = 150;
+			}
+		}
+	}
+
+}
+
 
 //연사를 위한 함수
 void AMyCharacter::FirePressed()
 {
-	if(_bAim)
+	if(_gameStageTimer != nullptr)
 	{
-		if(_ammo > 0 )
+		if(_gameStageTimer->InGameEnum != EInGameState::GameReadyState )
 		{
-			Fire();
-			_bFire = true;
-			GetWorldTimerManager().SetTimer(_autoFireTimerHandle,this,&AMyCharacter::Fire,0.10,true,0.10);
-		}
-		else
-		{
-			UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
-		}
+			if(_bAim)
+			{
+				if(_ammo > 0 )
+				{
+					Fire();
+					_bFire = true;
+					GetWorldTimerManager().SetTimer(_autoFireTimerHandle,this,&AMyCharacter::Fire,0.10,true,0.10);
+				}
+				else
+				{
+					UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
+				}
 		
+			}
+		}
 	}
 	
 }
@@ -132,12 +173,14 @@ void AMyCharacter::FireReleased()
 {
 	_bFire = false;
 	GetWorldTimerManager().ClearTimer(_autoFireTimerHandle);
+	
 }
 
 
 //사격
 void AMyCharacter::Fire()
 {
+	
 	if(_ammo > 0  && _bReload == false)
 	{
 		UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunSound,GetActorLocation());
@@ -145,10 +188,10 @@ void AMyCharacter::Fire()
 		UE_LOG(LogTemp,Log,TEXT("Ammo :: %d"),_ammo);
 		FHitResult Hit;
 
-	
+
 		FVector Start = GetMesh()->GetSocketLocation("head");
 		FVector End =  Start + _camera->GetForwardVector() * 10000.0f;
-		
+
 
 		ECollisionChannel Channel = ECollisionChannel::ECC_Visibility;
 		FCollisionQueryParams QueryParams;
@@ -171,7 +214,7 @@ void AMyCharacter::Fire()
 					_money += 10;
 				}
 			}
-				
+		
 		}
 	}
 	else
@@ -179,35 +222,25 @@ void AMyCharacter::Fire()
 		UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
 		_bFire = false;
 	}
+	
 
 }
 
-//조준을 해야 사격이 가능하다. 조준 시 속도 저하
-void AMyCharacter::Aim()
-{
-	if(_bAim)
-	{
-		_bAim = false;
-		_springArm->TargetArmLength = 300;
-		GetCharacterMovement()->MaxWalkSpeed = 600;
-	}
-	else
-	{
-		_bAim = true;
-		_springArm->TargetArmLength = 100;
-		GetCharacterMovement()->MaxWalkSpeed = 150;
-	}
-
-}
 
 //재장전
 void AMyCharacter::Relaod()
 {
-	if(_ammo<30 && _ammoAmount > 0 && _bReload == false )
+	if(_gameStageTimer != nullptr)
 	{
-		_bReload = true;
-		UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_reloadSound,GetActorLocation());
-		GetWorldTimerManager().SetTimer(_reloadTimerHandle,this,&AMyCharacter::ReloadFinished,2.16f,false);
+		if(_gameStageTimer->InGameEnum != EInGameState::GameReadyState )
+		{
+			if(_ammo<30 && _ammoAmount > 0 && _bReload == false )
+			{
+				_bReload = true;
+				UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_reloadSound,GetActorLocation());
+				GetWorldTimerManager().SetTimer(_reloadTimerHandle,this,&AMyCharacter::ReloadFinished,2.16f,false);
+			}
+		}
 	}
 	
 	
@@ -216,7 +249,7 @@ void AMyCharacter::Relaod()
 //몽타쥬 플레이 시간이 지난 뒤에 이 함수를 실행하여 장전 완료
 void AMyCharacter::ReloadFinished()
 {
-
+	
 	if(_ammoAmount > 30)
 	{
 		_ammoAmount -= _maxAmmo -_ammo;
@@ -244,7 +277,8 @@ void AMyCharacter::DecreaseHP(int value)
 	if(_hp <=0)
 	{
 		_bDead = true;
-		this->Controller->Destroy();
+		_gameStageTimer->InGameEnum = EInGameState::GameEndState;
+		//this->Controller->Destroy();
 	}
 }
 

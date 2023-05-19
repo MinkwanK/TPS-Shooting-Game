@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameStageTimer.h"
 #include "TurretSpawnPoint.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
@@ -49,18 +50,20 @@ public:
 
 	ATurretSpawnPoint* _turretSpawnPoint;
 	
+	AGameStageTimer* _gameStageTimer;
+	
 	UPROPERTY(BlueprintReadOnly)
 	int _ammo;
 	
 	int _maxAmmo;
 	
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadWrite)
 	int _ammoAmount;
 
 	UPROPERTY(BlueprintReadOnly)
 	int _hp;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadWrite)
 	int _money;
 
 	UPROPERTY(BlueprintReadOnly)
@@ -80,6 +83,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool _bOverlapAmmoBox;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool _bPaused;
 	
 	FTimerHandle _autoFireTimerHandle;
 	FTimerHandle _reloadTimerHandle;
@@ -97,10 +103,12 @@ public:
 	void Relaod();
 	void ReloadFinished();
 
+
 	void Interact();
 
 	void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	void NotifyActorEndOverlap(AActor* OtherActor) override;
+	
 	
 
 

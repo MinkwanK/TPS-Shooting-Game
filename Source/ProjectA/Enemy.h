@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameStageTimer.h"
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
+UENUM()
+enum EMyEnum {  };
 UCLASS()
 class PROJECTA_API AEnemy : public ACharacter
 {
@@ -35,6 +38,8 @@ public:
 	FTimerHandle _hitTimerHandle;
 
 	AActor* _targetObject;
+	AGameStageTimer* _gameStageTimer;
+	
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	bool _bCanAttack;

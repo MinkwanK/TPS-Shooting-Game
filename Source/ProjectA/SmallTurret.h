@@ -58,6 +58,8 @@ public:
 	
 
 	AMyCharacter* _Owner;
+	AGameStageTimer* _gameStageTimer;
+
 	
 	UPROPERTY(EditDefaultsOnly)
 	AEnemy* _targetEnemy;

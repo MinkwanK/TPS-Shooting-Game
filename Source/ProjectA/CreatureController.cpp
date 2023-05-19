@@ -6,6 +6,7 @@
 #include "DrawDebugHelpers.h"
 #include "Enemy.h"
 #include "SmallTurret.h"
+#include "Kismet/GameplayStatics.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AIPerceptionStimuliSourceComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
@@ -18,23 +19,8 @@
 */
 ACreatureController::ACreatureController()
 {
-
-	// _aIPerceptionComponent = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIPerceptionComp"));
 	_aiPerceptionStimuliSourceComponent = CreateDefaultSubobject<UAIPerceptionStimuliSourceComponent>(TEXT("AIPercetionStimulSorceComp"));
-	
-	// _sight = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
-	// _sight->SightRadius = 8000.0f;
-	// _sight->DetectionByAffiliation.bDetectNeutrals = true;
-	// _sight->DetectionByAffiliation.bDetectEnemies = true;
-	// _sight->DetectionByAffiliation.bDetectFriendlies = true;
-	//
-	//
-	//
-	// _aIPerceptionComponent->ConfigureSense(*_sight);
-	// _aIPerceptionComponent->SetDominantSense(*_sight->GetSenseImplementation());
-	// _aIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this,&ACreatureController::OnTargetPerception);
 
-	
 }
 
 void ACreatureController::BeginPlay()
@@ -45,11 +31,12 @@ void ACreatureController::BeginPlay()
 	_enemy = Cast<AEnemy>(GetPawn());
 	if(GetWorld()->GetFirstPlayerController()!= nullptr)
 	{
-		if(GetWorld()->GetFirstPlayerController()->GetPawn()!=nullptr)
+		if(GetWorld()->GetFirstPlayerController()->GetPawn() !=nullptr)
 		_targetPlayer = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	}
-	
-	//_aIPerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this,&ACreatureController::OnTargetPerception);
+
+	_gameStageTimer = Cast<AGameStageTimer>(UGameplayStatics::GetActorOfClass(GetWorld(),AGameStageTimer::StaticClass()));
+
 	
 	
 }
@@ -58,24 +45,19 @@ void ACreatureController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	if(_targetPlayer != nullptr)
+	if(_gameStageTimer != nullptr)
 	{
-		MoveToTarget();
+		if(_gameStageTimer->InGameEnum != EInGameState::GameReadyState)
+		{
+			if(_targetPlayer != nullptr)
+			{
+				MoveToTarget();
+			}
+		}
 	}
 }
 
-// void ACreatureController::OnTargetPerception(AActor* Actor, FAIStimulus Stimulus)
-// {
-// 	
-// 	_targetPlayer = Cast<AMyCharacter>(Actor);
-// 	
-// 	if(_targetPlayer == nullptr && ActorHasTag("Player"))
-// 	{
-// 		_targetPlayer = Cast<AMyCharacter>(Actor);
-// 		
-// 		MoveToTarget();
-// 	}
-// }
+
 
 void ACreatureController::MoveToTarget()
 {

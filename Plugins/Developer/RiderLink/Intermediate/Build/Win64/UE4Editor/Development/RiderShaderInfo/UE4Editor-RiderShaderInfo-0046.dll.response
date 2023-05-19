@@ -33,8 +33,8 @@
 /NODEFAULTLIB:"LIBCD"
 /NODEFAULTLIB:"LIBCPD"
 /FUNCTIONPADMIN
-"D:\Development\UnrealProject\ProjectA\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderShaderInfo\RiderShaderInfo.cpp.obj"
-"D:\Development\UnrealProject\ProjectA\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderShaderInfo\Default.rc2.res"
+"D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderShaderInfo\RiderShaderInfo.cpp.obj"
+"D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderShaderInfo\Default.rc2.res"
 "D:\Development\UE_4.27\Engine\Intermediate\Build\Win64\UE4Editor\Development\Core\UE4Editor-Core.lib"
 "D:\Development\UE_4.27\Engine\Intermediate\Build\Win64\UE4Editor\Development\Projects\UE4Editor-Projects.lib"
 "D:\Development\UE_4.27\Engine\Intermediate\Build\Win64\UE4Editor\Development\RenderCore\UE4Editor-RenderCore.lib"
@@ -62,7 +62,7 @@
 "setupapi.lib"
 "dwmapi.lib"
 "imm32.lib"
-/OUT:"D:\Development\UnrealProject\ProjectA\Plugins\Developer\RiderLink\Binaries\Win64\UE4Editor-RiderShaderInfo-0046.dll"
-/IMPLIB:"D:\Development\UnrealProject\ProjectA\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderShaderInfo\UE4Editor-RiderShaderInfo-0046.suppressed.lib"
-/PDB:"D:\Development\UnrealProject\ProjectA\Plugins\Developer\RiderLink\Binaries\Win64\UE4Editor-RiderShaderInfo-0046.pdb"
+/OUT:"D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Binaries\Win64\UE4Editor-RiderShaderInfo-0046.dll"
+/IMPLIB:"D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderShaderInfo\UE4Editor-RiderShaderInfo-0046.suppressed.lib"
+/PDB:"D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Binaries\Win64\UE4Editor-RiderShaderInfo-0046.pdb"
 /ignore:4078

@@ -13,7 +13,10 @@
 AGameStageTimer::AGameStageTimer()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
+
+	InGameEnum = EInGameState::GameReadyState;
+	_stageNum = 2;
 
 }
 
@@ -22,45 +25,70 @@ void AGameStageTimer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(GetWorld()->GetFirstPlayerController() != nullptr)
-	{
-		if ( GetWorld()->GetFirstPlayerController()->GetPawn() != nullptr )
-		{
-			_myCharacter = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
-
-			GetWorldTimerManager().SetTimer(_stageReadyTimerHandle,this,&AGameStageTimer::StageReady,5.0f,false,5.0f);
-		}
-	}
-
-	
-	
-	
+	UE_LOG(LogTemp,Log,TEXT("Game Ready Timer Start"));
+	GetWorldTimerManager().SetTimer(_stageReadyTimerHandle,this,&AGameStageTimer::StageReadyEnd,1.0f,false);
+		
 }
+
+
 
 // Called every frame
 void AGameStageTimer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
+
 }
 
 
-void AGameStageTimer::StageReady()
+void AGameStageTimer::StageReadyEnd()
 {
+	
+	UE_LOG(LogTemp,Log,TEXT("Game Start Timer Start"));
+	InGameEnum = EInGameState::GameStartState;
 	//스테이지 시작 준비 완료! 스테이지 카운트 타운은 timerhandle 값을 조회하여 표시 할 예정이다
-	GetWorldTimerManager().SetTimer(_stageStartTimerHandle,this,&AGameStageTimer::StageStart,10.0f,false,10.0f);
-	GetWorldTimerManager().ClearTimer(_stageReadyTimerHandle);
+
+	if(GetWorldTimerManager().IsTimerActive(_stageReadyTimerHandle))
+	{
+		GetWorldTimerManager().ClearTimer(_stageReadyTimerHandle);
+	}
+	GetWorldTimerManager().SetTimer(_stageStartTimerHandle,this,&AGameStageTimer::StageStartEnd,60.0f,false);
+	
+	
 }
 
-void AGameStageTimer::StageStart()
+void AGameStageTimer::StageStartEnd()
 {
-	GetWorldTimerManager().SetTimer(_stageRestTimerHandle,this,&AGameStageTimer::StageRest,5.0f,false,5.0f);
+	
+	UE_LOG(LogTemp,Log,TEXT("Game Rest Timer Start"));
+
 	GetWorldTimerManager().ClearTimer(_stageStartTimerHandle);
+
+	if(_stageNum < 3)
+	{
+		InGameEnum = EInGameState::GameRestState;
+		GetWorldTimerManager().SetTimer(_stageRestTimerHandle,this,&AGameStageTimer::StageRestEnd,5.0f,false);
+	}
+	else
+	{
+		InGameEnum = EInGameState::GameEndState;
+	}
+	
+	
+	
 }
 
-void AGameStageTimer::StageRest()
+//정해진 최종 스테이지까지 계속해서 반복한다.
+void AGameStageTimer::StageRestEnd()
 {
 	GetWorldTimerManager().ClearTimer(_stageRestTimerHandle);
+	
+	InGameEnum = EInGameState::GameStartState;
+
+	GetWorldTimerManager().SetTimer(_stageStartTimerHandle,this,&AGameStageTimer::StageStartEnd,60.0f,false);
+	_stageNum++;
+	
 }
 
 

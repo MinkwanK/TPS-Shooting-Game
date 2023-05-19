@@ -71,8 +71,10 @@ void ASmallTurret::BeginPlay()
 	Super::BeginPlay();
 	//UE_LOG(LogTemp,Display,TEXT("Begin"));
 
-	
+	_gameStageTimer = Cast<AGameStageTimer>(UGameplayStatics::GetActorOfClass(GetWorld(),AGameStageTimer::StaticClass()));
 	_Owner = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+	
 	_turretRotation = GetActorRotation();
 	_gunL = GetMesh()->GetSocketLocation("gunL");
 	_gunR = GetMesh()->GetSocketLocation("gunR");
@@ -88,7 +90,10 @@ void ASmallTurret::Tick(float DeltaTime)
 	//UE_LOG(LogTemp,Log,TEXT("turret hp %d"),_hp)
 	if(_targetEnemy != nullptr)
 	{
-		Aim();
+		//현재 게임 시작 상태가 아니라면?
+	
+			Aim();
+		
 	}
 
 
@@ -105,17 +110,19 @@ void ASmallTurret::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 void ASmallTurret::OnTargetPerception(AActor* Actor, FAIStimulus Stimulus)
 {
-	//UE_LOG(LogTemp,Display,TEXT("Perception Updated"));
 	
 	//인지한 Actor가 Enemy라면 타겟 설정
+	//게임 시작 상태에서만 타겟 인지
 	if(Cast<AEnemy>(Actor) != nullptr)
 	{
+		
 		if(Cast<AEnemy>(Actor)->Controller != nullptr)
 		{
 			//인지한 Actor를 타겟 배열에 Push
 			_targetEnemy = Cast<AEnemy>(Actor);
-			
+		
 		}
+		
 	
 	}
 	
@@ -165,10 +172,10 @@ void ASmallTurret::Turn_Turret()
 
 	const int resultYaw = _turretRotation.Yaw - _targetRotation.Yaw;
 	const int resultPitch = _turretRotation.Pitch - _targetRotation.Pitch;
-	// UE_LOG(LogTemp,Display,TEXT("Target Rotation Yaw:: %f, Turret Rotation Yaw:: %f"),_targetRotation.Yaw,_turretRotation.Yaw);
-	// UE_LOG(LogTemp,Display,TEXT("resultYaw :: %d"),resultYaw);
-	// UE_LOG(LogTemp,Display,TEXT("Target Rotation Pitch:: %f, Turret Rotation Pitch:: %f"),_targetRotation.Pitch,_turretRotation.Pitch);
-	// UE_LOG(LogTemp,Display,TEXT("resultPitch :: %d"),resultPitch);
+	 UE_LOG(LogTemp,Display,TEXT("Target Rotation Yaw:: %f, Turret Rotation Yaw:: %f"),_targetRotation.Yaw,_turretRotation.Yaw);
+	 UE_LOG(LogTemp,Display,TEXT("resultYaw :: %d"),resultYaw);
+	 UE_LOG(LogTemp,Display,TEXT("Target Rotation Pitch:: %f, Turret Rotation Pitch:: %f"),_targetRotation.Pitch,_turretRotation.Pitch);
+	UE_LOG(LogTemp,Display,TEXT("resultPitch :: %d"),resultPitch);
 
 	if(resultYaw == 0 && resultPitch == 0)
 	{

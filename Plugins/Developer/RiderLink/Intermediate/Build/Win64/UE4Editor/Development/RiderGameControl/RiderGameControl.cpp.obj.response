@@ -32,29 +32,29 @@
 /wd4244
 /wd4838
 /I .
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderGameControl\Private
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_core_cpp
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_core_cpp\src\main
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_framework_cpp
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_framework_cpp\src\main
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_framework_cpp\src\main\util
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_gen_cpp\src
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\ordered-map\include
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\optional\tl
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\variant\include
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\string-view-lite\include
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\spdlog\include
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\clsocket\src
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\CTPL\include
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderGameControl\Private
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_core_cpp
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_core_cpp\src\main
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_framework_cpp
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_framework_cpp\src\main
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_framework_cpp\src\main\util
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\src\rd_gen_cpp\src
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\ordered-map\include
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\optional\tl
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\variant\include
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\string-view-lite\include
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\spdlog\include
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\clsocket\src
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RD\thirdparty\CTPL\include
 /I Runtime
 /I Runtime\TraceLog\Public
 /I Runtime\Core\Public
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderLink\Public\Model\Library
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderLink\Public\Model\RdEditorProtocol
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderLink\Public
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderLink\Public\Model\Library
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderLink\Public\Model\RdEditorProtocol
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderLink\Public
 /I ..\Intermediate\Build\Win64\UE4Editor\Inc\HeadMountedDisplay
 /I Runtime\HeadMountedDisplay\Public
 /I ..\Intermediate\Build\Win64\UE4Editor\Inc\AugmentedReality
@@ -255,7 +255,7 @@
 /I Developer\ToolMenus\Public
 /I Runtime\Windows
 /I Runtime\Windows\XAudio2\Public
-/I D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderGameControl\Public
+/I D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderGameControl\Public
 /I ThirdParty\PhysX3\PxShared\include
 /I ThirdParty\PhysX3\PxShared\include\cudamanager
 /I ThirdParty\PhysX3\PxShared\include\filebuf
@@ -279,15 +279,15 @@
 /I ThirdParty\PhysX3\APEX_1.4\shared\general\RenderDebug\public
 /I ThirdParty\PhysX3\APEX_1.4\shared\general\PairFilter\include
 /I ThirdParty\PhysX3\APEX_1.4\shared\internal\include
-/I "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC\14.29.30133\INCLUDE"
+/I "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\INCLUDE"
 /I "C:\Program Files (x86)\Windows Kits\NETFXSDK\4.6.1\include\um"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\ucrt"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\shared"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\um"
-/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.22000.0\winrt"
-"D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderGameControl\Private\RiderGameControl.cpp"
-/FI"D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderGameControl\Definitions.h"
-/Fo"D:\Development\UnrealProjects\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderGameControl\RiderGameControl.cpp.obj"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\ucrt"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\shared"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\um"
+/I "C:\Program Files (x86)\Windows Kits\10\include\10.0.19041.0\winrt"
+"D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Source\RiderGameControl\Private\RiderGameControl.cpp"
+/FI"D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderGameControl\Definitions.h"
+/Fo"D:\Development\UnrealProject\ComeAndGetMe-new\Plugins\Developer\RiderLink\Intermediate\Build\Win64\UE4Editor\Development\RiderGameControl\RiderGameControl.cpp.obj"
 /TP
 /GR
 /W4
