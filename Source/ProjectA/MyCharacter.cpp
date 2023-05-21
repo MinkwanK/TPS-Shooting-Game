@@ -41,7 +41,7 @@ AMyCharacter::AMyCharacter()
 	_ammo = 30;
 	_maxAmmo = 30;
 	_money = 120;
-	_ammoAmount = 60;
+	_ammoAmount = 240;
 }
 
 // Called when the game starts or when spawned
@@ -51,12 +51,56 @@ void AMyCharacter::BeginPlay()
 
 	_gameStageTimer = Cast<AGameStageTimer>(UGameplayStatics::GetActorOfClass(GetWorld(),AGameStageTimer::StaticClass()));
 	
+	
 }
 
 // Called every frame
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+
+	if(_bFire)
+	{
+		
+		FHitResult Hit;
+		FRotator muzzleRoc;
+		muzzleVec = GetMesh()->GetChildComponent(0)->GetSocketLocation("b_gun_muzzleflash");
+		FVector Start = muzzleVec;
+
+		FVector End =  Start + _camera->GetForwardVector() * 50.0f;
+
+
+		ECollisionChannel Channel = ECollisionChannel::ECC_Visibility;
+		FCollisionQueryParams QueryParams;
+
+		QueryParams.AddIgnoredActor(this);
+
+		GetWorld()->LineTraceSingleByChannel(Hit,Start,End,Channel,QueryParams);
+
+		//DrawDebugLine(GetWorld(),Start,End,FColor::Blue,false,1.0f);
+
+		
+		
+		
+		if(Hit.GetActor() != nullptr)
+		{
+			if(Hit.GetActor()->ActorHasTag("Enemy"))
+			{
+				AEnemy* hitEnemy = Cast<AEnemy>(Hit.GetActor());
+				hitEnemy->DecreaseHP(20);
+
+				if(hitEnemy->_hp <=0)
+				{
+					_money += 10;
+				}
+			}
+		
+		}
+	}
+	
+
+
 
 }
 
@@ -144,6 +188,7 @@ void AMyCharacter::Aim()
 }
 
 
+
 //연사를 위한 함수
 void AMyCharacter::FirePressed()
 {
@@ -183,6 +228,7 @@ void AMyCharacter::Fire()
 	
 	if(_ammo > 0  && _bReload == false)
 	{
+		
 		UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunSound,GetActorLocation());
 		_ammo -= 1;
 		UE_LOG(LogTemp,Log,TEXT("Ammo :: %d"),_ammo);
@@ -190,7 +236,8 @@ void AMyCharacter::Fire()
 
 
 		FVector Start = _camera->GetComponentToWorld().GetLocation();
-		FVector End =  Start + _camera->GetForwardVector() * 50000.0f;
+		//FVector Start = muzzleVec; 
+		FVector End =  _camera->GetComponentToWorld().GetLocation() + _camera->GetForwardVector() * 50000.0f;
 
 
 		ECollisionChannel Channel = ECollisionChannel::ECC_Visibility;
@@ -202,6 +249,9 @@ void AMyCharacter::Fire()
 
 		//DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,1.0f);
 
+		
+		
+		
 		if(Hit.GetActor() != nullptr)
 		{
 			if(Hit.GetActor()->ActorHasTag("Enemy"))
@@ -219,12 +269,14 @@ void AMyCharacter::Fire()
 	}
 	else
 	{
+		
 		UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
 		_bFire = false;
 	}
 	
 
 }
+
 
 
 //재장전

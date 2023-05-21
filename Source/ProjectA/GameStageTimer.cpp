@@ -16,7 +16,7 @@ AGameStageTimer::AGameStageTimer()
 	PrimaryActorTick.bCanEverTick = false;
 
 	InGameEnum = EInGameState::GameReadyState;
-	_stageNum = 2;
+	_stageNum = 1;
 
 }
 
@@ -53,7 +53,7 @@ void AGameStageTimer::StageReadyEnd()
 	{
 		GetWorldTimerManager().ClearTimer(_stageReadyTimerHandle);
 	}
-	GetWorldTimerManager().SetTimer(_stageStartTimerHandle,this,&AGameStageTimer::StageStartEnd,60.0f,false);
+	GetWorldTimerManager().SetTimer(_stageStartTimerHandle,this,&AGameStageTimer::StageStartEnd,20.0f,false);
 	
 	
 }
@@ -86,7 +86,7 @@ void AGameStageTimer::StageRestEnd()
 	
 	InGameEnum = EInGameState::GameStartState;
 
-	GetWorldTimerManager().SetTimer(_stageStartTimerHandle,this,&AGameStageTimer::StageStartEnd,60.0f,false);
+	GetWorldTimerManager().SetTimer(_stageStartTimerHandle,this,&AGameStageTimer::StageStartEnd,20.0f,false);
 	_stageNum++;
 	
 }

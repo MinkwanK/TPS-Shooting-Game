@@ -96,6 +96,14 @@ void ASmallTurret::Tick(float DeltaTime)
 		
 	}
 
+	if(_gameStageTimer != nullptr)
+	{
+		if(_gameStageTimer->InGameEnum ==  EInGameState::GameRestState)
+		{
+			_targetEnemy = nullptr;
+		}
+	}
+
 
 
 }
@@ -113,17 +121,20 @@ void ASmallTurret::OnTargetPerception(AActor* Actor, FAIStimulus Stimulus)
 	
 	//인지한 Actor가 Enemy라면 타겟 설정
 	//게임 시작 상태에서만 타겟 인지
-	if(Cast<AEnemy>(Actor) != nullptr)
+	if(_targetEnemy == nullptr)
 	{
-		
-		if(Cast<AEnemy>(Actor)->Controller != nullptr)
+		if(Cast<AEnemy>(Actor) != nullptr)
 		{
-			//인지한 Actor를 타겟 배열에 Push
-			_targetEnemy = Cast<AEnemy>(Actor);
 		
-		}
+			if(Cast<AEnemy>(Actor)->Controller != nullptr)
+			{
+				//인지한 Actor를 타겟 배열에 Push
+				_targetEnemy = Cast<AEnemy>(Actor);
+		
+			}
 		
 	
+		}
 	}
 	
 }
@@ -160,7 +171,10 @@ void ASmallTurret::Turn_Turret()
 		_turretRotation.Pitch -= 0.1f;
 	}
 	
+	if(_targetRotation.Yaw < 0 )
+		_targetRotation.Yaw += 360;
 
+	
 	if(_targetRotation.Yaw > _turretRotation.Yaw)
 	{
 		_turretRotation.Yaw += 1.0f;
@@ -174,8 +188,8 @@ void ASmallTurret::Turn_Turret()
 	const int resultPitch = _turretRotation.Pitch - _targetRotation.Pitch;
 	 UE_LOG(LogTemp,Display,TEXT("Target Rotation Yaw:: %f, Turret Rotation Yaw:: %f"),_targetRotation.Yaw,_turretRotation.Yaw);
 	 UE_LOG(LogTemp,Display,TEXT("resultYaw :: %d"),resultYaw);
-	 UE_LOG(LogTemp,Display,TEXT("Target Rotation Pitch:: %f, Turret Rotation Pitch:: %f"),_targetRotation.Pitch,_turretRotation.Pitch);
-	UE_LOG(LogTemp,Display,TEXT("resultPitch :: %d"),resultPitch);
+	// UE_LOG(LogTemp,Display,TEXT("Target Rotation Pitch:: %f, Turret Rotation Pitch:: %f"),_targetRotation.Pitch,_turretRotation.Pitch);
+	//UE_LOG(LogTemp,Display,TEXT("resultPitch :: %d"),resultPitch);
 
 	if(resultYaw == 0 && resultPitch == 0)
 	{

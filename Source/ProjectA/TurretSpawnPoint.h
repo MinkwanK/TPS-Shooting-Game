@@ -25,6 +25,9 @@ public:
 
 	void SpawnTurret();
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bSpawn;
+
 	UPROPERTY(EditDefaultsOnly)
 	UClass* spawnClass;
 	

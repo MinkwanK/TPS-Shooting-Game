@@ -86,9 +86,12 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool _bPaused;
+
+	FVector muzzleVec;
 	
 	FTimerHandle _autoFireTimerHandle;
 	FTimerHandle _reloadTimerHandle;
+	FTimerHandle _aimTimerHandle;
 	
 	UPROPERTY(EditDefaultsOnly)
 	UCameraComponent* _camera;
@@ -99,9 +102,11 @@ public:
 	void FirePressed();
 	void FireReleased();
 	void Fire();
+	//void FireFromMuzzle(FHitResult hit);
 	void Aim();
 	void Relaod();
 	void ReloadFinished();
+
 
 
 	void Interact();

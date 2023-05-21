@@ -52,9 +52,9 @@ void AEnemy::BeginPlay()
 
 	case EMonsterType::Skeleton :
 		{
-			_hp = 200;
+			_hp = 120;
 			_damage = 30;
-			GetCharacterMovement()->MaxWalkSpeed = 600;
+			GetCharacterMovement()->MaxWalkSpeed = 500;
 			break;
 		}
 	}
@@ -143,7 +143,7 @@ void AEnemy::DecreaseHP(const int value)
 		if(_hp <= 0)
 		{
 			_bDead = true;
-
+			UGameplayStatics::PlaySound2D(GetWorld(),_deadSound);
 			ACreatureController* creatureController = Cast<ACreatureController>(this->Controller);
 			creatureController->_aiPerceptionStimuliSourceComponent->UnregisterFromPerceptionSystem();
 			this->AIControllerClass = nullptr;

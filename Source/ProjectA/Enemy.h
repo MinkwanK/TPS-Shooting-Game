@@ -48,7 +48,9 @@ public:
 
 	AActor* _targetObject;
 	AGameStageTimer* _gameStageTimer;
-	
+
+	UPROPERTY(EditDefaultsOnly)
+	USoundBase* _deadSound;
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	bool _bCanAttack;
