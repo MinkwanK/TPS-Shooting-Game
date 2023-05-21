@@ -7,8 +7,12 @@
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
-UENUM()
-enum EMyEnum {  };
+UENUM(BlueprintType)
+enum class EMonsterType : uint8
+{
+	Zombie UMETA (DisplayName = "Zombie"),
+	Skeleton UMETA (DisplayName = "Skeleton"),
+};
 UCLASS()
 class PROJECTA_API AEnemy : public ACharacter
 {
@@ -31,6 +35,11 @@ protected:
 public:	
 
 	int _hp;
+	int _damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EMonsterType  _MonsterTypeEnum;
+	
 	UAnimInstance* animInstance;
 	FBodyInstance * RHand;
 	FVector _attackStartPos;

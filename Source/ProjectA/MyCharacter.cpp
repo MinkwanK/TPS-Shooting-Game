@@ -189,8 +189,8 @@ void AMyCharacter::Fire()
 		FHitResult Hit;
 
 
-		FVector Start = GetMesh()->GetSocketLocation("head");
-		FVector End =  Start + _camera->GetForwardVector() * 10000.0f;
+		FVector Start = _camera->GetComponentToWorld().GetLocation();
+		FVector End =  Start + _camera->GetForwardVector() * 50000.0f;
 
 
 		ECollisionChannel Channel = ECollisionChannel::ECC_Visibility;

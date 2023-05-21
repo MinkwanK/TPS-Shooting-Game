@@ -26,8 +26,7 @@ AEnemy::AEnemy()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	GetCharacterMovement()->MaxWalkSpeed = 300;
-
-	_hp = 100;
+	
 	_bCanAttack = false;
 	_bDead = false;
 	_bHit = false;
@@ -41,6 +40,24 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	switch (_MonsterTypeEnum)
+	{
+	case EMonsterType::Zombie :
+		{
+			_hp = 60;
+			_damage = 10;
+			GetCharacterMovement()->MaxWalkSpeed = 250;
+			break;
+		}
+
+	case EMonsterType::Skeleton :
+		{
+			_hp = 200;
+			_damage = 30;
+			GetCharacterMovement()->MaxWalkSpeed = 600;
+			break;
+		}
+	}
 	if(GetWorld()->GetFirstPlayerController() != nullptr)
 	{
 		if(GetWorld()->GetFirstPlayerController()->GetPawn() != nullptr)
@@ -142,8 +159,6 @@ void AEnemy::DecreaseHP(const int value)
 bool AEnemy::FireRay()
 {
 	FHitResult Hit;
-
-	
 	FVector Start = GetMesh()->GetSocketLocation("head");
 	FVector End =  Start + GetMesh()->GetRightVector() * 100.0f;
 		
