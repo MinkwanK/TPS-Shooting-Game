@@ -9,7 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
-// Sets default values
+// 생성자를 통해 플레이어의 탄약, 카메라, 체력 세팅
 AMyCharacter::AMyCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -54,7 +54,7 @@ void AMyCharacter::BeginPlay()
 	
 }
 
-// Called every frame
+//TPS 조준 시스템의 오차를 위해 가까이 있는 적은 총구에서 레이를 발사하여 전투 (수정필요)
 void AMyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -85,6 +85,8 @@ void AMyCharacter::Tick(float DeltaTime)
 		
 		if(Hit.GetActor() != nullptr)
 		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),_gunHitParitlce,Hit.Location,FRotator::ZeroRotator,FVector(0.3));
+			
 			if(Hit.GetActor()->ActorHasTag("Enemy"))
 			{
 				AEnemy* hitEnemy = Cast<AEnemy>(Hit.GetActor());
@@ -189,7 +191,7 @@ void AMyCharacter::Aim()
 
 
 
-//연사를 위한 함수
+//연사를 위한 함수(타이머사용)
 void AMyCharacter::FirePressed()
 {
 	if(_gameStageTimer != nullptr)
@@ -246,14 +248,18 @@ void AMyCharacter::Fire()
 		QueryParams.AddIgnoredActor(this);
 
 		GetWorld()->LineTraceSingleByChannel(Hit,Start,End,Channel,QueryParams);
+		
+
 
 		//DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,1.0f);
 
 		
 		
-		
+		//피격당한 객체가 적이라면 체력 차감 실시
 		if(Hit.GetActor() != nullptr)
 		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),_gunHitParitlce,Hit.Location,FRotator::ZeroRotator,FVector(0.3));
+			
 			if(Hit.GetActor()->ActorHasTag("Enemy"))
 			{
 				AEnemy* hitEnemy = Cast<AEnemy>(Hit.GetActor());
@@ -320,7 +326,7 @@ void AMyCharacter::ReloadFinished()
 
 }
 
-
+//플레이어의 체력 차감
 void AMyCharacter::DecreaseHP(int value)
 {
 	_hp -= value;
@@ -330,6 +336,7 @@ void AMyCharacter::DecreaseHP(int value)
 	{
 		_bDead = true;
 		_gameStageTimer->InGameEnum = EInGameState::GameEndState;
+		SetActorEnableCollision(false);
 		//this->Controller->Destroy();
 	}
 }

@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
+
+//열거형을 통해 각 적들의 종류 판단.
 UENUM(BlueprintType)
 enum class EMonsterType : uint8
 {

@@ -8,8 +8,12 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
 #include "MyCharacter.generated.h"
 
+
+//게임 내 플레이어의 스크립트. 사격, 이동, 재장전등을 수행
 UCLASS()
 class PROJECTA_API AMyCharacter : public ACharacter
 {
@@ -88,10 +92,19 @@ public:
 	bool _bPaused;
 
 	FVector muzzleVec;
+
+	UPROPERTY(EditDefaultsOnly)
+	UParticleSystem* _gunHitParitlce;
+
+	UPROPERTY(EditAnywhere)
+	UNiagaraSystem* HitParticles;
+
+	
 	
 	FTimerHandle _autoFireTimerHandle;
 	FTimerHandle _reloadTimerHandle;
 	FTimerHandle _aimTimerHandle;
+	FTimerHandle _dieTimerHandle;
 	
 	UPROPERTY(EditDefaultsOnly)
 	UCameraComponent* _camera;
@@ -102,10 +115,10 @@ public:
 	void FirePressed();
 	void FireReleased();
 	void Fire();
-	//void FireFromMuzzle(FHitResult hit);
 	void Aim();
 	void Relaod();
 	void ReloadFinished();
+	void DieSet() {_gameStageTimer->InGameEnum = EInGameState::GameEndState;  ;}
 
 
 

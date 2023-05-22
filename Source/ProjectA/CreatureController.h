@@ -47,13 +47,7 @@ public:
 	AGameStageTimer* _gameStageTimer;
 	AMyCharacter* _targetPlayer;
 	AEnemy* _enemy;
-
-		
-	// class UAISenseConfig_Sight* _sight; //시야 감각을 위함.
-	//
-	// UPROPERTY(EditDefaultsOnly)
-	// UAIPerceptionComponent* _aIPerceptionComponent;
-	//
+	
 	UPROPERTY(EditDefaultsOnly)
 	UAIPerceptionStimuliSourceComponent* _aiPerceptionStimuliSourceComponent;
 	

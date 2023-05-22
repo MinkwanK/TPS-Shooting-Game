@@ -10,7 +10,7 @@
 
 /*
 	Enemy의 행동로직
-	Friendly 태그를 가진 액터를 만나면 target으로 저장하고 추격한다. (추격중인 target이 사망하면 새로운 target을 추격한다.)
+	플레이어 태그를 가진 적을 인지하면 추격 개시
 
 	현재 방식 -> 인지된 터렛을 무작정 쫓아 때리는 방식
 	새로운 방식 ? -> 맵안의 Player의 위치를 아는 적들. Player를 추격한다. 터렛과 일정 거리 범위로 가까워지면 터렛을 공격한다. 이게 디펜스 게임
@@ -103,7 +103,7 @@ void AEnemy::Tick(float DeltaTime)
 			{
 				animInstance->Montage_Play(_attackMontage);
 			
-				UE_LOG(LogTemp,Log,TEXT("Montage Play"));
+				//UE_LOG(LogTemp,Log,TEXT("Montage Play"));
 			}
 		}
 		if(_bHit)
@@ -156,6 +156,7 @@ void AEnemy::DecreaseHP(const int value)
 
 }
 
+//실시간으로 레이를 발사하여 플레이어가 맞으면 전투 개시
 bool AEnemy::FireRay()
 {
 	FHitResult Hit;
@@ -184,7 +185,7 @@ bool AEnemy::FireRay()
 }
 
 
-
+//애님 노티파이를 이용한 전투용 함수
 void AEnemy::AttackStart()
 {
 	FTransform T = RHand->GetUnrealWorldTransform();

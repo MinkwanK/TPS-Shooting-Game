@@ -69,6 +69,10 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 	USoundBase* _fireSound;
 
+	UPROPERTY(EditDefaultsOnly)
+	UParticleSystem* _gunHitParitlce;
+
+
 	UPROPERTY(BlueprintReadOnly)
 	bool _bCanFire;
 

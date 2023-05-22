@@ -24,6 +24,9 @@
  포탑을 target 방향으로 회전. 회전 각도가 일치하면 사격 실시.
  사격은 0.15초 간격으로 번갈아 실시
  */
+
+
+//인지 능력 부여, 시각 설정 
 ASmallTurret::ASmallTurret()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -37,7 +40,6 @@ ASmallTurret::ASmallTurret()
 
 	_sight = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
 	_sight->SightRadius = 5000.0f;
-	//인지한 액터를 바로 잊어버리기 때문에 빠르게 적 탐지 가능
 	_sight->LoseSightRadius = 5000;
 	_sight->SetMaxAge(5.0);
 	_sight->PeripheralVisionAngleDegrees = 180;
@@ -65,14 +67,14 @@ ASmallTurret::ASmallTurret()
 	
 }
 
-// Called when the game starts or when spawned
+
 void ASmallTurret::BeginPlay()
 {
 	Super::BeginPlay();
 	//UE_LOG(LogTemp,Display,TEXT("Begin"));
 
 	_gameStageTimer = Cast<AGameStageTimer>(UGameplayStatics::GetActorOfClass(GetWorld(),AGameStageTimer::StaticClass()));
-	_Owner = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
 
 	
 	_turretRotation = GetActorRotation();
@@ -91,11 +93,14 @@ void ASmallTurret::Tick(float DeltaTime)
 	if(_targetEnemy != nullptr)
 	{
 		//현재 게임 시작 상태가 아니라면?
-	
+		if(_targetEnemy->_hp > 0)
 			Aim();
+		else
+			_targetEnemy = nullptr;
 		
 	}
 
+	//쇼핑 시간이라면 타겟 상실
 	if(_gameStageTimer != nullptr)
 	{
 		if(_gameStageTimer->InGameEnum ==  EInGameState::GameRestState)
@@ -128,7 +133,7 @@ void ASmallTurret::OnTargetPerception(AActor* Actor, FAIStimulus Stimulus)
 		
 			if(Cast<AEnemy>(Actor)->Controller != nullptr)
 			{
-				//인지한 Actor를 타겟 배열에 Push
+				//인지한 Actor를 타겟에 등록
 				_targetEnemy = Cast<AEnemy>(Actor);
 		
 			}
@@ -157,7 +162,8 @@ void ASmallTurret::Aim()
 
 }
 
-//터렛을 천천히 타겟을 향해 회전시킨다. (수정 필요)
+//터렛을 천천히 타겟을 향해 회전시킨다.
+//회전 각도가 일치할 때만 사격 실시
 void ASmallTurret::Turn_Turret()
 {
 
@@ -186,8 +192,8 @@ void ASmallTurret::Turn_Turret()
 
 	const int resultYaw = _turretRotation.Yaw - _targetRotation.Yaw;
 	const int resultPitch = _turretRotation.Pitch - _targetRotation.Pitch;
-	 UE_LOG(LogTemp,Display,TEXT("Target Rotation Yaw:: %f, Turret Rotation Yaw:: %f"),_targetRotation.Yaw,_turretRotation.Yaw);
-	 UE_LOG(LogTemp,Display,TEXT("resultYaw :: %d"),resultYaw);
+	// UE_LOG(LogTemp,Display,TEXT("Target Rotation Yaw:: %f, Turret Rotation Yaw:: %f"),_targetRotation.Yaw,_turretRotation.Yaw);
+	// UE_LOG(LogTemp,Display,TEXT("resultYaw :: %d"),resultYaw);
 	// UE_LOG(LogTemp,Display,TEXT("Target Rotation Pitch:: %f, Turret Rotation Pitch:: %f"),_targetRotation.Pitch,_turretRotation.Pitch);
 	//UE_LOG(LogTemp,Display,TEXT("resultPitch :: %d"),resultPitch);
 
@@ -215,10 +221,12 @@ void ASmallTurret::Turn_Turret()
 
 void ASmallTurret::Fire()
 {
+	//양쪽의 총구에서 번갈아가며 사격 실시
 	for(int i=0;i<2;i++)
 	{
 		if(_targetEnemy!=nullptr)
 		{
+			if(i==0)
 			UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_fireSound,GetActorLocation());
 			_gunL = GetMesh()->GetSocketLocation("gunL");
 			_gunR = GetMesh()->GetSocketLocation("gunR");
@@ -240,10 +248,11 @@ void ASmallTurret::Fire()
 	
 			GetWorld()->LineTraceSingleByChannel(Hit,Start,End,Channel,QueryParams);
 
-			DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,1.0f);
+			//DrawDebugLine(GetWorld(),Start,End,FColor::Red,false,1.0f);
 
 			if(Hit.GetActor() != nullptr)
 			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),_gunHitParitlce,Hit.Location,FRotator::ZeroRotator,FVector(0.5));
 				if(Hit.GetActor()->ActorHasTag("Enemy"))
 				{
 					AEnemy* hitEnemy = Cast<AEnemy>(Hit.GetActor());
@@ -263,7 +272,7 @@ void ASmallTurret::Fire()
 	}
 }
 
-
+// 체력 차감 함수
 void ASmallTurret::DecreaseHP(int value)
 {
 	_hp -= value;

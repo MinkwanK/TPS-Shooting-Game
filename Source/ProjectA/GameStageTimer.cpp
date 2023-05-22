@@ -13,7 +13,7 @@
 AGameStageTimer::AGameStageTimer()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	InGameEnum = EInGameState::GameReadyState;
 	_stageNum = 1;
@@ -26,7 +26,7 @@ void AGameStageTimer::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp,Log,TEXT("Game Ready Timer Start"));
-	GetWorldTimerManager().SetTimer(_stageReadyTimerHandle,this,&AGameStageTimer::StageReadyEnd,1.0f,false);
+	GetWorldTimerManager().SetTimer(_stageReadyTimerHandle,this,&AGameStageTimer::StageReadyEnd,5.0f,false);
 		
 }
 
@@ -37,7 +37,13 @@ void AGameStageTimer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
+	if(InGameEnum == EInGameState::GameEndState)
+	{
+		//UE_LOG(LogTemp,Log,TEXT("End Time"));
+		GetWorldTimerManager().ClearAllTimersForObject(this);
+		//this->Destroy();
+		
+	}
 
 }
 
@@ -53,6 +59,8 @@ void AGameStageTimer::StageReadyEnd()
 	{
 		GetWorldTimerManager().ClearTimer(_stageReadyTimerHandle);
 	}
+
+	
 	GetWorldTimerManager().SetTimer(_stageStartTimerHandle,this,&AGameStageTimer::StageStartEnd,20.0f,false);
 	
 	
@@ -65,6 +73,7 @@ void AGameStageTimer::StageStartEnd()
 
 	GetWorldTimerManager().ClearTimer(_stageStartTimerHandle);
 
+	
 	if(_stageNum < 3)
 	{
 		InGameEnum = EInGameState::GameRestState;
@@ -87,6 +96,7 @@ void AGameStageTimer::StageRestEnd()
 	InGameEnum = EInGameState::GameStartState;
 
 	GetWorldTimerManager().SetTimer(_stageStartTimerHandle,this,&AGameStageTimer::StageStartEnd,20.0f,false);
+
 	_stageNum++;
 	
 }
