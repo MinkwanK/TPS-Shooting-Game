@@ -36,6 +36,7 @@ public:
 	
 	void MoveRight(float value);
 	void MoveForward(float value);
+	void Run();
 
 	void DecreaseHP(int value);
 	
@@ -90,6 +91,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool _bPaused;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool _bRun;
 
 	FVector muzzleVec;
 

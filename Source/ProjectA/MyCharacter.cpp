@@ -36,12 +36,14 @@ AMyCharacter::AMyCharacter()
 	_bOverlapTurretItem = false;
 	_bOverlapAmmoBox = false;
 	_bPaused = false;
+	_bRun = false;
 	
 	_hp = 100;
 	_ammo = 30;
 	_maxAmmo = 30;
 	_money = 120;
 	_ammoAmount = 240;
+	GetCharacterMovement()->MaxWalkSpeed = 300.0f;
 }
 
 // Called when the game starts or when spawned
@@ -114,6 +116,9 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Jump",IE_Pressed,this,&AMyCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump",IE_Released,this,&AMyCharacter::StopJumping);
 
+	PlayerInputComponent->BindAction("Run",IE_Pressed,this,&AMyCharacter::Run);
+	PlayerInputComponent->BindAction("Run",IE_Released,this,&AMyCharacter::Run);
+
 	PlayerInputComponent->BindAction("Fire",IE_Pressed,this,&AMyCharacter::FirePressed);
 	PlayerInputComponent->BindAction("Fire",IE_Released,this,&AMyCharacter::AMyCharacter::FireReleased);
 
@@ -181,14 +186,34 @@ void AMyCharacter::Aim()
 			else
 			{
 				_bAim = true;
+				_bRun = false;
 				_springArm->TargetArmLength = 100;
-				GetCharacterMovement()->MaxWalkSpeed = 150;
+				GetCharacterMovement()->MaxWalkSpeed = 300;
 			}
 		}
 	}
 
 }
 
+void AMyCharacter::Run()
+{
+	if(_gameStageTimer != nullptr)
+	{
+		if(_gameStageTimer->InGameEnum != EInGameState::GameReadyState )
+		{
+			if(_bRun && !_bAim)
+			{
+				_bRun = false;
+				GetCharacterMovement()->MaxWalkSpeed = 300;
+			}
+			else if(!_bRun && !_bAim)
+			{
+				_bRun = true;
+				GetCharacterMovement()->MaxWalkSpeed = 600;
+			}
+		}
+	}
+}
 
 
 //연사를 위한 함수(타이머사용)

@@ -26,7 +26,7 @@ void AGameStageTimer::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp,Log,TEXT("Game Ready Timer Start"));
-	GetWorldTimerManager().SetTimer(_stageReadyTimerHandle,this,&AGameStageTimer::StageReadyEnd,5.0f,false);
+	GetWorldTimerManager().SetTimer(_stageReadyTimerHandle,this,&AGameStageTimer::StageReadyEnd,0.5,false);
 		
 }
 
