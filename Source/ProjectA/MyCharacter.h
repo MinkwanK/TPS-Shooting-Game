@@ -4,12 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameStageTimer.h"
+#include "Projectile.h"
 #include "TurretSpawnPoint.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "NiagaraComponent.h"
-#include "NiagaraFunctionLibrary.h"
 #include "MyCharacter.generated.h"
 
 
@@ -36,7 +35,7 @@ public:
 	
 	void MoveRight(float value);
 	void MoveForward(float value);
-	void Run();
+	void SmoothTurn(int initialValue);
 
 	void DecreaseHP(int value);
 	
@@ -44,18 +43,14 @@ public:
 	UAnimMontage* _reloadMontage;
 	
 	UPROPERTY(EditDefaultsOnly)
-	USoundBase* _gunSound;
-
-	UPROPERTY(EditDefaultsOnly)
-	USoundBase* _reloadSound;
-
-	UPROPERTY(EditDefaultsOnly)
 	USoundBase* _gunEmptySound;
-
-
+	
 	ATurretSpawnPoint* _turretSpawnPoint;
 	
 	AGameStageTimer* _gameStageTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AProjectile> _projectile;
 	
 	UPROPERTY(BlueprintReadOnly)
 	int _ammo;
@@ -82,29 +77,12 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	bool _bReload;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool _bOverlapTurretItem;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool _bOverlapAmmoBox;
-
+	
 	UPROPERTY(BlueprintReadWrite)
 	bool _bPaused;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool _bRun;
-
+	
 	FVector muzzleVec;
 
-	UPROPERTY(EditDefaultsOnly)
-	UParticleSystem* _gunHitParitlce;
-
-	UPROPERTY(EditAnywhere)
-	UNiagaraSystem* HitParticles;
-
-	
-	
 	FTimerHandle _autoFireTimerHandle;
 	FTimerHandle _reloadTimerHandle;
 	FTimerHandle _aimTimerHandle;
@@ -119,20 +97,10 @@ public:
 	void FirePressed();
 	void FireReleased();
 	void Fire();
+	void SpawnProjectile(FHitResult Hit);
 	void Aim();
 	void Relaod();
 	void ReloadFinished();
 	void DieSet() {_gameStageTimer->InGameEnum = EInGameState::GameEndState;  ;}
-
-
-
-	void Interact();
-
-	void NotifyActorBeginOverlap(AActor* OtherActor) override;
-	void NotifyActorEndOverlap(AActor* OtherActor) override;
 	
-	
-
-
-
 };

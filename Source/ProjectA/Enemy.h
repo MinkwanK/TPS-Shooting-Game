@@ -7,6 +7,8 @@
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
+//플레이어와 교전을 벌이는 적의 스크립트
+
 
 //열거형을 통해 각 적들의 종류 판단.
 UENUM(BlueprintType)
@@ -39,20 +41,7 @@ public:
 	int _hp;
 	int _damage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	EMonsterType  _MonsterTypeEnum;
-	
-	UAnimInstance* animInstance;
-	FBodyInstance * RHand;
-	FVector _attackStartPos;
-
-	FTimerHandle _hitTimerHandle;
-
-	AActor* _targetObject;
-	AGameStageTimer* _gameStageTimer;
-
-	UPROPERTY(EditDefaultsOnly)
-	USoundBase* _deadSound;
+	bool _gaveMoney;
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	bool _bCanAttack;
@@ -62,6 +51,28 @@ public:
 
 	UPROPERTY(BlueprintReadOnly,EditDefaultsOnly)
 	bool _bHit;
+
+	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	EMonsterType  _MonsterTypeEnum;
+
+	FTimerHandle _deadTimerHandle;
+	UAnimInstance* animInstance;
+	FBodyInstance * RHand;
+	FVector _attackStartPos;
+
+	
+
+	FTimerHandle _hitTimerHandle;
+
+	AActor* _targetObject;
+	AGameStageTimer* _gameStageTimer;
+
+	UPROPERTY(EditDefaultsOnly)
+	USoundBase* _deadSound;
+
+	
 
 	UPROPERTY(EditDefaultsOnly);
 	UAnimMontage* _attackMontage;
@@ -75,24 +86,15 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void AttackStart();
-
 	
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
 
 	inline void HitTimerFunc() {_bHit = false;}
 	
-
-
-
-	
 	virtual void PostInitializeComponents() override;
-	
 
-
-
-	
-
+	void SetDead() {this->Destroy();}
 	
 	
 };

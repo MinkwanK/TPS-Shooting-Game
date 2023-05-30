@@ -5,6 +5,7 @@
 #include "CreatureController.h"
 #include "DrawDebugHelpers.h"
 #include "SmallTurret.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -12,11 +13,10 @@
 	Enemy의 행동로직
 	플레이어 태그를 가진 적을 인지하면 추격 개시
 
-	현재 방식 -> 인지된 터렛을 무작정 쫓아 때리는 방식
-	새로운 방식 ? -> 맵안의 Player의 위치를 아는 적들. Player를 추격한다. 터렛과 일정 거리 범위로 가까워지면 터렛을 공격한다. 이게 디펜스 게임
-	방식에 어울리고 구현도 더 쉽지 않을까?
-
+	맵안의 Player의 위치를 아는 적들. Player를 추격한다. 
 	즉, 모든 Enemy들은 태어날 때부터 Player의 위치를 파악하고 있다. 무작정 Player를 추격하기 시작한다.
+
+	열거형에 따라 Enemy 종류에 따라 다른 속성 능력치를 준다.
 
 */
 
@@ -30,6 +30,7 @@ AEnemy::AEnemy()
 	_bCanAttack = false;
 	_bDead = false;
 	_bHit = false;
+	_gaveMoney = false;
 
 	
 
@@ -40,11 +41,12 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//열거형에 따라 다른 능력치 부여
 	switch (_MonsterTypeEnum)
 	{
 	case EMonsterType::Zombie :
 		{
-			_hp = 60;
+			_hp = 100;
 			_damage = 10;
 			GetCharacterMovement()->MaxWalkSpeed = 250;
 			break;
@@ -52,7 +54,7 @@ void AEnemy::BeginPlay()
 
 	case EMonsterType::Skeleton :
 		{
-			_hp = 120;
+			_hp = 150;
 			_damage = 30;
 			GetCharacterMovement()->MaxWalkSpeed = 500;
 			break;
@@ -82,6 +84,7 @@ void AEnemy::PostInitializeComponents()
 }
 
 
+//머리에서 짧은 Ray를 계속 발사하여 Player가 맞으면 공겨 개시
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -143,12 +146,23 @@ void AEnemy::DecreaseHP(const int value)
 		if(_hp <= 0)
 		{
 			_bDead = true;
+			
 			UGameplayStatics::PlaySound2D(GetWorld(),_deadSound);
+			AMyCharacter* player = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+			this->SetActorEnableCollision(false);
+			if(player!=nullptr && !_gaveMoney)
+			{
+				player->_money += 10;
+				_gaveMoney = true;
+			}
+			
 			ACreatureController* creatureController = Cast<ACreatureController>(this->Controller);
-			creatureController->_aiPerceptionStimuliSourceComponent->UnregisterFromPerceptionSystem();
+			
 			this->AIControllerClass = nullptr;
 			this->Controller->Destroy();
-			this->SetActorEnableCollision(false);
+		
+			GetWorldTimerManager().SetTimer(_deadTimerHandle,this,&AEnemy::SetDead,8.0f);
 		}
 	}
 	

@@ -76,7 +76,7 @@ void ASmallTurret::BeginPlay()
 	_gameStageTimer = Cast<AGameStageTimer>(UGameplayStatics::GetActorOfClass(GetWorld(),AGameStageTimer::StaticClass()));
 
 
-	
+	_Owner = Cast<AMyCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn());
 	_turretRotation = GetActorRotation();
 	_gunL = GetMesh()->GetSocketLocation("gunL");
 	_gunR = GetMesh()->GetSocketLocation("gunR");
@@ -253,9 +253,12 @@ void ASmallTurret::Fire()
 			if(Hit.GetActor() != nullptr)
 			{
 				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),_gunHitParitlce,Hit.Location,FRotator::ZeroRotator,FVector(0.5));
+				
 				if(Hit.GetActor()->ActorHasTag("Enemy"))
 				{
 					AEnemy* hitEnemy = Cast<AEnemy>(Hit.GetActor());
+
+					if(!hitEnemy->_bDead)
 					hitEnemy->DecreaseHP(_damage);
 		
 					if(hitEnemy->_hp <=0)
