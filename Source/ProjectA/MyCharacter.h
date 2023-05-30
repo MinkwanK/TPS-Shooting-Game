@@ -11,6 +11,13 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "MyCharacter.generated.h"
 
+//열거형 플레이어의 장비 상태 
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	Pistol UMETA (DisplayName = "Pistol"),
+	Rifle UMETA (DisplayName = "Primary"),
+};
 
 //게임 내 플레이어의 스크립트. 사격, 이동, 재장전등을 수행
 UCLASS()
@@ -41,6 +48,12 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* _reloadMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* _pistolReloadMontage;
+
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* _equipWeaponMontage;
 	
 	UPROPERTY(EditDefaultsOnly)
 	USoundBase* _gunEmptySound;
@@ -51,11 +64,18 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AProjectile> _projectile;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AProjectile> _pistolProjectile;
 	
 	UPROPERTY(BlueprintReadOnly)
 	int _ammo;
-	
 	int _maxAmmo;
+	
+	UPROPERTY(BlueprintReadOnly)
+	int _pistolAmmo;
+	
+	int _maxPistolAmmo;
 	
 	UPROPERTY(BlueprintReadWrite)
 	int _ammoAmount;
@@ -80,6 +100,8 @@ public:
 	
 	UPROPERTY(BlueprintReadWrite)
 	bool _bPaused;
+
+	bool _bSwapping;
 	
 	FVector muzzleVec;
 
@@ -87,6 +109,10 @@ public:
 	FTimerHandle _reloadTimerHandle;
 	FTimerHandle _aimTimerHandle;
 	FTimerHandle _dieTimerHandle;
+	FTimerHandle _swapTimerHandle;
+
+	UPROPERTY(BlueprintReadOnly)
+	EWeaponType _playerWeaponType;
 	
 	UPROPERTY(EditDefaultsOnly)
 	UCameraComponent* _camera;
@@ -102,5 +128,8 @@ public:
 	void Relaod();
 	void ReloadFinished();
 	void DieSet() {_gameStageTimer->InGameEnum = EInGameState::GameEndState;  ;}
+	void SwapPistol();
+	void SwapRifle();
+	void SwapSet() {_bSwapping = false;}
 	
 };

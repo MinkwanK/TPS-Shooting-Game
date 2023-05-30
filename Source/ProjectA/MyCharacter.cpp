@@ -9,8 +9,11 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
-//게임 무대의 주인공인 플레이어
-
+/*
+ *게임 무대의 주인공인 플레이어
+ *
+ 무기 변경이 가능하다. 1번 권총 2번 소총
+*/
 // 생성자를 통해 플레이어의 탄약, 카메라, 체력 세팅
 AMyCharacter::AMyCharacter()
 {
@@ -37,12 +40,14 @@ AMyCharacter::AMyCharacter()
 	_bFire = false;
 	_bPaused = false;
 
-	
+	_playerWeaponType = EWeaponType::Pistol;
 	_hp = 100;
 	_ammo = 30;
 	_maxAmmo = 30;
 	_money = 120;
 	_ammoAmount = 240;
+	_pistolAmmo = 12;
+	_maxPistolAmmo = 12;
 
 }
 
@@ -79,6 +84,9 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	PlayerInputComponent->BindAction("Aim",IE_Released,this,&AMyCharacter::Aim);
 
 	PlayerInputComponent->BindAction("Reload",IE_Pressed,this,&AMyCharacter::Relaod);
+
+	PlayerInputComponent->BindAction("Swap Pistol",IE_Pressed,this,&AMyCharacter::SwapPistol);
+	PlayerInputComponent->BindAction("Swap Rifle",IE_Pressed,this,&AMyCharacter::SwapRifle);
 	
 
 	PlayerInputComponent->BindAxis("Move Right",this,&AMyCharacter::MoveRight);
@@ -155,117 +163,267 @@ void AMyCharacter::SmoothTurn(int initialValue)
 //연사를 위한 함수(타이머사용)
 void AMyCharacter::FirePressed()
 {
-	if(_bAim)
+	if(_bAim && !_bSwapping )
 	{
-		if(_ammo > 0 )
+		switch (_playerWeaponType)
 		{
-			Fire();
-			_bFire = true;
-			GetWorldTimerManager().SetTimer(_autoFireTimerHandle,this,&AMyCharacter::Fire,0.10,true,0.10);
+			case EWeaponType::Pistol:
+			{
+				if(_pistolAmmo > 0 )
+				{
+					Fire();
+					_bFire = true;
+					GetWorldTimerManager().SetTimer(_autoFireTimerHandle,this,&AMyCharacter::Fire,1.0,true,0.2);
+				}
+				else
+				{
+					UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
+				}
+				//break;	
+			}
+			case EWeaponType::Rifle:
+			{
+				if(_ammo > 0 )
+				{
+					Fire();
+					_bFire = true;
+					GetWorldTimerManager().SetTimer(_autoFireTimerHandle,this,&AMyCharacter::Fire,0.15,true,0.15);
+				}
+				else
+				{
+					UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
+				}
+				//break;
+			}
 		}
-		else
-		{
-			UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
-		}
+		
 	}
 }
+
+//사격 입력을 멈췄을 때
 void AMyCharacter::FireReleased()
 {
 	_bFire = false;
 	GetWorldTimerManager().ClearTimer(_autoFireTimerHandle);
 }
 
+//플레이어의 사격 수행 , Ray를 발사한 뒤에 투사체 생성
 void AMyCharacter::Fire()
 {
-	if(_ammo > 0)
+	switch(_playerWeaponType)
 	{
-		FHitResult Hit;
+	case EWeaponType::Pistol:
+		{
+			if(_pistolAmmo > 0)
+			{
+				FHitResult Hit;
 	
-		FVector RayStart  = _camera->GetComponentLocation();
-		FVector RayEnd = RayStart + _camera->GetForwardVector() * 5000.0f;
+				FVector RayStart  = _camera->GetComponentLocation();
+				FVector RayEnd = RayStart + _camera->GetForwardVector() * 5000.0f;
 	
-		ECollisionChannel Channel = ECollisionChannel::ECC_Visibility;
-		FCollisionQueryParams QueryParams;
+				ECollisionChannel Channel = ECollisionChannel::ECC_Visibility;
+				FCollisionQueryParams QueryParams;
 	
-		QueryParams.AddIgnoredActor(this);
+				QueryParams.AddIgnoredActor(this);
 	
-		GetWorld()->LineTraceSingleByChannel(Hit,RayStart,RayEnd,Channel,QueryParams);
-		//DrawDebugLine(GetWorld(),RayStart,RayEnd,FColor::Red,false,5.0f);
-		SpawnProjectile(Hit);
+				GetWorld()->LineTraceSingleByChannel(Hit,RayStart,RayEnd,Channel,QueryParams);
+				//DrawDebugLine(GetWorld(),RayStart,RayEnd,FColor::Red,false,5.0f);
+				SpawnProjectile(Hit);
+			}
+			
+			//break;
+		}
+	case EWeaponType::Rifle:
+		{
+			if(_ammo > 0)
+			{
+				FHitResult Hit;
+	
+				FVector RayStart  = _camera->GetComponentLocation();
+				FVector RayEnd = RayStart + _camera->GetForwardVector() * 5000.0f;
+	
+				ECollisionChannel Channel = ECollisionChannel::ECC_Visibility;
+				FCollisionQueryParams QueryParams;
+	
+				QueryParams.AddIgnoredActor(this);
+	
+				GetWorld()->LineTraceSingleByChannel(Hit,RayStart,RayEnd,Channel,QueryParams);
+				//DrawDebugLine(GetWorld(),RayStart,RayEnd,FColor::Red,false,5.0f);
+				SpawnProjectile(Hit);
+			}
+			//break;
+		}
 	}
+	
 	
 }
 
 void AMyCharacter::SpawnProjectile(FHitResult Hit)
 {
-	_ammo -= 1;
-	
-	//총구의 위치 구하기
-	FVector ProjectileSpawnLocation = GetMesh()->GetChildComponent(0)->GetSocketLocation("b_gun_muzzleflash");
-	FRotator ProjectileSpawnRotation;
-
-	//Ray가 Hit한 Actor가 있을 때는 그 Actor를 바라보는 방향 각도를 이용하여 스폰.
-	if(Hit.GetActor() != nullptr)
+	switch(_playerWeaponType)
 	{
-		ProjectileSpawnRotation = UKismetMathLibrary::FindLookAtRotation(ProjectileSpawnLocation,Hit.Location);
-	}
-	//Ray가 Hit한 Actor가 없을 경우에는 카메라의 Rotation 구하기
-	else
-	{
-		ProjectileSpawnRotation = _camera->GetComponentRotation();
-	}
-	
-	FTransform ProjectileSpawnTransform = UKismetMathLibrary::MakeTransform(ProjectileSpawnLocation,ProjectileSpawnRotation,FVector(1,1,1));
-	
-	
-	if(_projectile)
-	{
-		
-		FActorSpawnParameters SpawnParams;
-		SpawnParams.Owner = this;
-		
-		AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_projectile,ProjectileSpawnTransform,SpawnParams);
-		projectile->SetOwner(this);
-		if(projectile)
+	case EWeaponType::Pistol:
 		{
-			//투사체가 자기 자신은 무시하도록 하기.
-			projectile->_CollisionComp->MoveIgnoreActors.Add(SpawnParams.Owner);
+			_pistolAmmo -= 1;
+	
+			//총구의 위치 구하기
+			FVector ProjectileSpawnLocation = GetMesh()->GetChildComponent(0)->GetSocketLocation("b_gun_muzzleflash");
+			FRotator ProjectileSpawnRotation;
+
+			//Ray가 Hit한 Actor가 있을 때는 그 Actor를 바라보는 방향 각도를 이용하여 스폰.
+			if(Hit.GetActor() != nullptr)
+			{
+				ProjectileSpawnRotation = UKismetMathLibrary::FindLookAtRotation(ProjectileSpawnLocation,Hit.Location);
+			}
+			//Ray가 Hit한 Actor가 없을 경우에는 카메라의 Rotation 구하기
+			else
+			{
+				ProjectileSpawnRotation = _camera->GetComponentRotation();
+			}
+	
+			FTransform ProjectileSpawnTransform = UKismetMathLibrary::MakeTransform(ProjectileSpawnLocation,ProjectileSpawnRotation,FVector(1,1,1));
+	
+	
+			if(_projectile)
+			{
+		
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = this;
+		
+				AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_pistolProjectile,ProjectileSpawnTransform,SpawnParams);
+				projectile->SetOwner(this);
+				if(projectile)
+				{
+					//투사체가 자기 자신은 무시하도록 하기.
+					projectile->_CollisionComp->MoveIgnoreActors.Add(SpawnParams.Owner);
+				}
+			}
+			break;
+		}
+	case EWeaponType::Rifle:
+		{
+			_ammo -= 1;
+	
+			//총구의 위치 구하기
+			FVector ProjectileSpawnLocation = GetMesh()->GetChildComponent(0)->GetSocketLocation("b_gun_muzzleflash");
+			FRotator ProjectileSpawnRotation;
+
+			//Ray가 Hit한 Actor가 있을 때는 그 Actor를 바라보는 방향 각도를 이용하여 스폰.
+			if(Hit.GetActor() != nullptr)
+			{
+				ProjectileSpawnRotation = UKismetMathLibrary::FindLookAtRotation(ProjectileSpawnLocation,Hit.Location);
+			}
+			//Ray가 Hit한 Actor가 없을 경우에는 카메라의 Rotation 구하기
+			else
+			{
+				ProjectileSpawnRotation = _camera->GetComponentRotation();
+			}
+	
+			FTransform ProjectileSpawnTransform = UKismetMathLibrary::MakeTransform(ProjectileSpawnLocation,ProjectileSpawnRotation,FVector(1,1,1));
+	
+	
+			if(_projectile)
+			{
+		
+				FActorSpawnParameters SpawnParams;
+				SpawnParams.Owner = this;
+		
+				AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_projectile,ProjectileSpawnTransform,SpawnParams);
+				projectile->SetOwner(this);
+				if(projectile)
+				{
+					//투사체가 자기 자신은 무시하도록 하기.
+					projectile->_CollisionComp->MoveIgnoreActors.Add(SpawnParams.Owner);
+				}
+			}
+			break;
 		}
 	}
+	
 }
 
 
 //재장전
 void AMyCharacter::Relaod()
 {
-	if(_ammo<30 && _ammoAmount > 0 && _bReload == false )
+	switch(_playerWeaponType)
 	{
-		_bReload = true;
-		PlayAnimMontage(_reloadMontage);
-		GetWorldTimerManager().SetTimer(_reloadTimerHandle,this,&AMyCharacter::ReloadFinished,2.16f,false);
+	case EWeaponType::Pistol:
+		{
+			if(_pistolAmmo < 12 && _bReload == false )
+			{
+				_bReload = true;
+				PlayAnimMontage(_pistolReloadMontage);
+				GetWorldTimerManager().SetTimer(_reloadTimerHandle,this,&AMyCharacter::ReloadFinished,2.16f,false);
+			}
+			break;
+		}
+	case EWeaponType::Rifle:
+		{
+			if(_ammo<30 && _ammoAmount > 0 && _bReload == false )
+			{
+				_bReload = true;
+				PlayAnimMontage(_reloadMontage);
+				GetWorldTimerManager().SetTimer(_reloadTimerHandle,this,&AMyCharacter::ReloadFinished,2.16f,false);
+			}
+			break;
+		}
 	}
+	
 }
 
 //몽타쥬 플레이 시간이 지난 뒤에 이 함수를 실행하여 장전 완료
 void AMyCharacter::ReloadFinished()
 {
-	
-	if(_ammoAmount > 30)
+	switch(_playerWeaponType)
 	{
-		_ammoAmount -= _maxAmmo -_ammo;
-		_ammo = 30;
-		_bReload = false;
-	}
-	else
-	{
-		_ammo = _ammoAmount;
-		_ammoAmount = 0;
-		_bReload = false;
+	case EWeaponType::Pistol:
+		{
+			_pistolAmmo = 12;
+			_bReload = false;
+			break;
+		}
+	case EWeaponType::Rifle:
+		{
+			if(_ammoAmount > 30)
+			{
+				_ammoAmount -= _maxAmmo -_ammo;
+				_ammo = 30;
+				_bReload = false;
+			}
+			else
+			{
+				_ammo = _ammoAmount;
+				_ammoAmount = 0;
+				_bReload = false;
 		
+			}
+			break;
+		}
 	}
+	
 
 	
 
+}
+
+void AMyCharacter::SwapPistol()
+{
+	_playerWeaponType = EWeaponType::Pistol;
+	PlayAnimMontage(_equipWeaponMontage);
+	_bAim = false;
+	_bSwapping = true;
+	GetWorldTimerManager().SetTimer(_swapTimerHandle,this,&AMyCharacter::SwapSet,1.7f);
+	
+}
+
+void AMyCharacter::SwapRifle()
+{
+	_playerWeaponType = EWeaponType::Rifle;
+	PlayAnimMontage(_equipWeaponMontage);
+	_bAim = false;
+	_bSwapping = true;
+	GetWorldTimerManager().SetTimer(_swapTimerHandle,this,&AMyCharacter::SwapSet,1.7f);
 }
 
 //플레이어의 체력 차감
