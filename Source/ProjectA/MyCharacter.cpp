@@ -179,7 +179,7 @@ void AMyCharacter::FirePressed()
 				{
 					UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
 				}
-				//break;	
+				break;	
 			}
 			case EWeaponType::Rifle:
 			{
@@ -193,7 +193,7 @@ void AMyCharacter::FirePressed()
 				{
 					UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
 				}
-				//break;
+				break;
 			}
 		}
 		
@@ -230,8 +230,12 @@ void AMyCharacter::Fire()
 				//DrawDebugLine(GetWorld(),RayStart,RayEnd,FColor::Red,false,5.0f);
 				SpawnProjectile(Hit);
 			}
+			else
+			{
+				_bFire = false;
+			}
 			
-			//break;
+			break;
 		}
 	case EWeaponType::Rifle:
 		{
@@ -251,7 +255,11 @@ void AMyCharacter::Fire()
 				//DrawDebugLine(GetWorld(),RayStart,RayEnd,FColor::Red,false,5.0f);
 				SpawnProjectile(Hit);
 			}
-			//break;
+			else
+			{
+				_bFire = false;
+			}
+			break;
 		}
 	}
 	
@@ -264,76 +272,82 @@ void AMyCharacter::SpawnProjectile(FHitResult Hit)
 	{
 	case EWeaponType::Pistol:
 		{
-			_pistolAmmo -= 1;
+			if(_pistolAmmo > 0 )
+			{
+				_pistolAmmo -= 1;
 	
-			//총구의 위치 구하기
-			FVector ProjectileSpawnLocation = GetMesh()->GetChildComponent(0)->GetSocketLocation("b_gun_muzzleflash");
-			FRotator ProjectileSpawnRotation;
+				//총구의 위치 구하기
+				FVector ProjectileSpawnLocation = GetMesh()->GetChildComponent(0)->GetSocketLocation("b_gun_muzzleflash");
+				FRotator ProjectileSpawnRotation;
 
-			//Ray가 Hit한 Actor가 있을 때는 그 Actor를 바라보는 방향 각도를 이용하여 스폰.
-			if(Hit.GetActor() != nullptr)
-			{
-				ProjectileSpawnRotation = UKismetMathLibrary::FindLookAtRotation(ProjectileSpawnLocation,Hit.Location);
-			}
-			//Ray가 Hit한 Actor가 없을 경우에는 카메라의 Rotation 구하기
-			else
-			{
-				ProjectileSpawnRotation = _camera->GetComponentRotation();
-			}
-	
-			FTransform ProjectileSpawnTransform = UKismetMathLibrary::MakeTransform(ProjectileSpawnLocation,ProjectileSpawnRotation,FVector(1,1,1));
-	
-	
-			if(_projectile)
-			{
-		
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.Owner = this;
-		
-				AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_pistolProjectile,ProjectileSpawnTransform,SpawnParams);
-				projectile->SetOwner(this);
-				if(projectile)
+				//Ray가 Hit한 Actor가 있을 때는 그 Actor를 바라보는 방향 각도를 이용하여 스폰.
+				if(Hit.GetActor() != nullptr)
 				{
-					//투사체가 자기 자신은 무시하도록 하기.
-					projectile->_CollisionComp->MoveIgnoreActors.Add(SpawnParams.Owner);
+					ProjectileSpawnRotation = UKismetMathLibrary::FindLookAtRotation(ProjectileSpawnLocation,Hit.Location);
+				}
+				//Ray가 Hit한 Actor가 없을 경우에는 카메라의 Rotation 구하기
+				else
+				{
+					ProjectileSpawnRotation = _camera->GetComponentRotation();
+				}
+	
+				FTransform ProjectileSpawnTransform = UKismetMathLibrary::MakeTransform(ProjectileSpawnLocation,ProjectileSpawnRotation,FVector(1,1,1));
+	
+	
+				if(_projectile)
+				{
+		
+					FActorSpawnParameters SpawnParams;
+					SpawnParams.Owner = this;
+		
+					AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_pistolProjectile,ProjectileSpawnTransform,SpawnParams);
+					projectile->SetOwner(this);
+					if(projectile)
+					{
+						//투사체가 자기 자신은 무시하도록 하기.
+						projectile->_CollisionComp->MoveIgnoreActors.Add(SpawnParams.Owner);
+					}
 				}
 			}
 			break;
 		}
 	case EWeaponType::Rifle:
 		{
-			_ammo -= 1;
+			if(_ammo>0)
+			{
+				_ammo -= 1;
 	
-			//총구의 위치 구하기
-			FVector ProjectileSpawnLocation = GetMesh()->GetChildComponent(0)->GetSocketLocation("b_gun_muzzleflash");
-			FRotator ProjectileSpawnRotation;
+				//총구의 위치 구하기
+				FVector ProjectileSpawnLocation = GetMesh()->GetChildComponent(0)->GetSocketLocation("b_gun_muzzleflash");
+				FRotator ProjectileSpawnRotation;
 
-			//Ray가 Hit한 Actor가 있을 때는 그 Actor를 바라보는 방향 각도를 이용하여 스폰.
-			if(Hit.GetActor() != nullptr)
-			{
-				ProjectileSpawnRotation = UKismetMathLibrary::FindLookAtRotation(ProjectileSpawnLocation,Hit.Location);
-			}
-			//Ray가 Hit한 Actor가 없을 경우에는 카메라의 Rotation 구하기
-			else
-			{
-				ProjectileSpawnRotation = _camera->GetComponentRotation();
-			}
-	
-			FTransform ProjectileSpawnTransform = UKismetMathLibrary::MakeTransform(ProjectileSpawnLocation,ProjectileSpawnRotation,FVector(1,1,1));
-	
-	
-			if(_projectile)
-			{
-		
-				FActorSpawnParameters SpawnParams;
-				SpawnParams.Owner = this;
-		
-				AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_projectile,ProjectileSpawnTransform,SpawnParams);
-				projectile->SetOwner(this);
-				if(projectile)
+				//Ray가 Hit한 Actor가 있을 때는 그 Actor를 바라보는 방향 각도를 이용하여 스폰.
+				if(Hit.GetActor() != nullptr)
 				{
-					//투사체가 자기 자신은 무시하도록 하기.
-					projectile->_CollisionComp->MoveIgnoreActors.Add(SpawnParams.Owner);
+					ProjectileSpawnRotation = UKismetMathLibrary::FindLookAtRotation(ProjectileSpawnLocation,Hit.Location);
+				}
+				//Ray가 Hit한 Actor가 없을 경우에는 카메라의 Rotation 구하기
+				else
+				{
+					ProjectileSpawnRotation = _camera->GetComponentRotation();
+				}
+	
+				FTransform ProjectileSpawnTransform = UKismetMathLibrary::MakeTransform(ProjectileSpawnLocation,ProjectileSpawnRotation,FVector(1,1,1));
+	
+	
+				if(_projectile)
+				{
+		
+					FActorSpawnParameters SpawnParams;
+					SpawnParams.Owner = this;
+		
+					AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_projectile,ProjectileSpawnTransform,SpawnParams);
+					projectile->SetOwner(this);
+					if(projectile)
+					{
+						//투사체가 자기 자신은 무시하도록 하기.
+						projectile->_CollisionComp->MoveIgnoreActors.Add(SpawnParams.Owner);
+					}
 				}
 			}
 			break;
