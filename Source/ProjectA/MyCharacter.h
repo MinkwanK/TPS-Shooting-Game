@@ -102,6 +102,9 @@ public:
 	bool _bPaused;
 
 	bool _bSwapping;
+
+	UPROPERTY(BlueprintReadWrite)
+	bool _bShop;
 	
 	FVector muzzleVec;
 
@@ -131,5 +134,5 @@ public:
 	void SwapPistol();
 	void SwapRifle();
 	void SwapSet() {_bSwapping = false;}
-	
+	void Shop();
 };

@@ -39,6 +39,7 @@ AMyCharacter::AMyCharacter()
 	_bAim = false;
 	_bFire = false;
 	_bPaused = false;
+	_bShop = false;
 
 	_playerWeaponType = EWeaponType::Pistol;
 	_hp = 100;
@@ -87,6 +88,8 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAction("Swap Pistol",IE_Pressed,this,&AMyCharacter::SwapPistol);
 	PlayerInputComponent->BindAction("Swap Rifle",IE_Pressed,this,&AMyCharacter::SwapRifle);
+
+	PlayerInputComponent->BindAction("Shop",IE_Pressed,this,&AMyCharacter::Shop);
 	
 
 	PlayerInputComponent->BindAxis("Move Right",this,&AMyCharacter::MoveRight);
@@ -438,6 +441,18 @@ void AMyCharacter::SwapRifle()
 	_bAim = false;
 	_bSwapping = true;
 	GetWorldTimerManager().SetTimer(_swapTimerHandle,this,&AMyCharacter::SwapSet,1.7f);
+}
+
+void AMyCharacter::Shop()
+{
+	if(_bShop)
+	{
+		_bShop = false;
+	}
+	else
+	{
+		_bShop = true;
+	}
 }
 
 //플레이어의 체력 차감

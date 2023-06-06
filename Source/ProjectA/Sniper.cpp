@@ -76,12 +76,23 @@ void ASniper::Aim()
 	if(_targetCreature != nullptr && _targetCreature->_hp >0)
 	{
 		FRotator TargetRoc = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(),_targetCreature->GetActorLocation());
-
+		TargetRoc.Pitch = 0;
+		TargetRoc.Roll = 0;
+		//SmoothTurn(TargetRoc,15);
 		SetActorRotation(TargetRoc);
 	
 		Fire();
 	}
 }
+
+void ASniper::SmoothTurn(FRotator targetRotation,int InterpSeed)
+{
+
+	const FRotator resultRotation = FMath::RInterpTo(GetActorRotation(),targetRotation,GetWorld()->GetDeltaSeconds(),InterpSeed);
+		
+	SetActorRotation(resultRotation);
+}
+
 
 void ASniper::Fire()
 {
@@ -120,3 +131,4 @@ void ASniper::Fire()
 		
 	}
 }
+

@@ -51,5 +51,6 @@ public:
 	bool _bCanFire;
 	void Aim();
 	void Fire();
+	void SmoothTurn(FRotator targetRotation,int InterpSeed);
 
 };
