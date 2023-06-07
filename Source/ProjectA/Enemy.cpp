@@ -6,6 +6,7 @@
 #include "DrawDebugHelpers.h"
 #include "SmallTurret.h"
 #include "Components/CapsuleComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -24,7 +25,6 @@ AEnemy::AEnemy()
 {
  	
 	PrimaryActorTick.bCanEverTick = true;
-	
 	GetCharacterMovement()->MaxWalkSpeed = 300;
 	
 	_bCanAttack = false;
@@ -40,7 +40,7 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-
+//	_textRenderComp->AttachToComponent(GetMesh(),FAttachmentTransformRules::SnapToTargetNotIncludingScale,"DamageText");
 	//열거형에 따라 다른 능력치 부여
 	switch (_MonsterTypeEnum)
 	{
@@ -88,7 +88,7 @@ void AEnemy::PostInitializeComponents()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	if(!_bDead)
 	{
 		if(FireRay() == true)
@@ -118,11 +118,19 @@ void AEnemy::Tick(float DeltaTime)
 		}
 	}
 
+	//전투 시간이 종료되면 스테이지 내 적들 모두 전멸 처리
 	if(_gameStageTimer!=nullptr)
 	{
-		if(_gameStageTimer->InGameEnum == EInGameState::GameRestState)
+		if(_gameStageTimer->InGameEnum == EInGameState::GameRestState && !GetWorldTimerManager().IsTimerActive(_deadTimerHandle))
 		{
-			this->Destroy();
+			this->_hp = 0;
+			this->_bDead = true;
+			ACreatureController* creatureController = Cast<ACreatureController>(this->Controller);
+			
+			this->AIControllerClass = nullptr;
+			this->Controller->Destroy();
+		
+			GetWorldTimerManager().SetTimer(_deadTimerHandle,this,&AEnemy::SetDead,8.0f);
 		}
 	}
 
@@ -143,6 +151,7 @@ void AEnemy::DecreaseHP(const int value)
 	{
 		_hp -= value;
 		_bHit = true;
+		
 		if(_hp <= 0)
 		{
 			_bDead = true;
@@ -228,25 +237,6 @@ void AEnemy::AttackEnd()
 	{
 		if(hits[i].GetActor()!=nullptr)
 		{
-			//터렛 공격 기능은 추후 개발
-			// if(hits[i].GetActor()->ActorHasTag("Turret"))
-			// {
-			// 	ASmallTurret* SmallTurret = Cast<ASmallTurret>(hit.GetActor());
-			//
-			// 	if(SmallTurret != nullptr && SmallTurret->_hp > 0)
-			// 	{
-			// 		SmallTurret->DecreaseHP(20);
-			//
-			// 		if(SmallTurret->_hp <= 0)
-			// 		{
-			// 			_bCanAttack = false;
-			// 		}
-			// 	
-			// 	}
-			// 	
-			// 	break;
-			// }
-
 			if(hits[i].GetActor()->ActorHasTag("Player"))
 			{
 				UE_LOG(LogTemp,Log,TEXT("Player got ray"));

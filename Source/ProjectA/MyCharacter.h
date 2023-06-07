@@ -7,6 +7,7 @@
 #include "Projectile.h"
 #include "TurretSpawnPoint.h"
 #include "Camera/CameraComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "MyCharacter.generated.h"
@@ -105,6 +106,8 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	bool _bShop;
+
+	int _damageDealt;
 	
 	FVector muzzleVec;
 
@@ -122,6 +125,7 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly)
 	USpringArmComponent* _springArm;
+	
 	
 	void FirePressed();
 	void FireReleased();

@@ -19,9 +19,7 @@ AMyCharacter::AMyCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-
-
+	
 	_springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
 	_camera = CreateDefaultSubobject<UCameraComponent>(TEXT("CameraComp"));
 	
@@ -49,6 +47,7 @@ AMyCharacter::AMyCharacter()
 	_ammoAmount = 240;
 	_pistolAmmo = 12;
 	_maxPistolAmmo = 12;
+	_damageDealt = 0;
 
 }
 
@@ -304,6 +303,7 @@ void AMyCharacter::SpawnProjectile(FHitResult Hit)
 					SpawnParams.Owner = this;
 		
 					AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_pistolProjectile,ProjectileSpawnTransform,SpawnParams);
+					projectile->_damage = 20;
 					projectile->SetOwner(this);
 					if(projectile)
 					{
@@ -345,6 +345,7 @@ void AMyCharacter::SpawnProjectile(FHitResult Hit)
 					SpawnParams.Owner = this;
 		
 					AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_projectile,ProjectileSpawnTransform,SpawnParams);
+					projectile->_damage = 30;
 					projectile->SetOwner(this);
 					if(projectile)
 					{

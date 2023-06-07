@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameStageTimer.h"
+#include "Components/TextRenderComponent.h"
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
@@ -68,7 +69,7 @@ public:
 
 	AActor* _targetObject;
 	AGameStageTimer* _gameStageTimer;
-
+	
 	UPROPERTY(EditDefaultsOnly)
 	USoundBase* _deadSound;
 

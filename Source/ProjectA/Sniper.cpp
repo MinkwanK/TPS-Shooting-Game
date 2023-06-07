@@ -117,6 +117,7 @@ void ASniper::Fire()
 		
 			AProjectile* projectile = GetWorld()->SpawnActor<AProjectile>(_projectile,ProjectileSpawnTransform,SpawnParams);
 			projectile->SetOwner(this);
+			projectile->_damage = 150;
 			PlayAnimMontage(_fireMontage);
 			if(projectile)
 			{

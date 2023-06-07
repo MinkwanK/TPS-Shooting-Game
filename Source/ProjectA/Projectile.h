@@ -26,12 +26,18 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	
 	void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
-
+	void SpawnTextRender(FHitResult Hit);
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite);
 	USphereComponent* _CollisionComp;
 
 	UPROPERTY(EditDefaultsOnly);
 	UProjectileMovementComponent* _projectileMovement;
 
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class ADamageActor> _damageActor;
+
+
+	int _damage;
 };
