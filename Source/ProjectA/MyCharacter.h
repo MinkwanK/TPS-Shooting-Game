@@ -17,7 +17,7 @@ UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
 	Pistol UMETA (DisplayName = "Pistol"),
-	Rifle UMETA (DisplayName = "Primary"),
+	Rifle UMETA (DisplayName = "Rifle"),
 };
 
 //게임 내 플레이어의 스크립트. 사격, 이동, 재장전등을 수행
@@ -40,13 +40,39 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	
+
+	//기본 이동 함수
 	void MoveRight(float value);
 	void MoveForward(float value);
 	void SmoothTurn(int initialValue);
 
+	//체력 차감 함수
 	void DecreaseHP(int value);
 	
+	//사격 함수
+	void FirePressed();
+	void FireReleased();
+	void Fire();
+	void Throw(); //수류탄 투척
+	//
+
+	//스폰 함수
+	void SpawnProjectile(FHitResult Hit);
+	void SpawnGrenade();
+	// 
+	void Aim();
+	void Relaod();
+	void ReloadFinished();
+	void DieSet() {_gameStageTimer->InGameEnum = EInGameState::GameEndState;  ;}
+
+	//무기 교체 함수
+	void SwapPistol();
+	void SwapRifle();
+	void SwapSet() {_bSwapping = false;} //무기를 교체 중인지를 설정하는 함수
+	//
+	void Shop();
+
+	//애니메이션 몽타주
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* _reloadMontage;
 
@@ -57,17 +83,26 @@ public:
 	UAnimMontage* _equipWeaponMontage;
 	
 	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* _ThrowMontage;
+	//
+	UPROPERTY(EditDefaultsOnly)
 	USoundBase* _gunEmptySound;
 	
 	ATurretSpawnPoint* _turretSpawnPoint;
 	
 	AGameStageTimer* _gameStageTimer;
 
+	//스폰되는 투사체 변수
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AProjectile> _projectile;
 
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AProjectile> _pistolProjectile;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class AGrenade> _grenade;
+	//
+
 	
 	UPROPERTY(BlueprintReadOnly)
 	int _ammo;
@@ -111,12 +146,14 @@ public:
 	
 	FVector muzzleVec;
 
+	//타이머핸들 
 	FTimerHandle _autoFireTimerHandle;
 	FTimerHandle _reloadTimerHandle;
 	FTimerHandle _aimTimerHandle;
 	FTimerHandle _dieTimerHandle;
 	FTimerHandle _swapTimerHandle;
-
+	//
+	
 	UPROPERTY(BlueprintReadOnly)
 	EWeaponType _playerWeaponType;
 	
@@ -127,16 +164,4 @@ public:
 	USpringArmComponent* _springArm;
 	
 	
-	void FirePressed();
-	void FireReleased();
-	void Fire();
-	void SpawnProjectile(FHitResult Hit);
-	void Aim();
-	void Relaod();
-	void ReloadFinished();
-	void DieSet() {_gameStageTimer->InGameEnum = EInGameState::GameEndState;  ;}
-	void SwapPistol();
-	void SwapRifle();
-	void SwapSet() {_bSwapping = false;}
-	void Shop();
 };

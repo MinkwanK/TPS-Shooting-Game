@@ -5,6 +5,7 @@
 
 #include "DrawDebugHelpers.h"
 #include "Enemy.h"
+#include "Grenade.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -87,6 +88,7 @@ void AMyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 
 	PlayerInputComponent->BindAction("Swap Pistol",IE_Pressed,this,&AMyCharacter::SwapPistol);
 	PlayerInputComponent->BindAction("Swap Rifle",IE_Pressed,this,&AMyCharacter::SwapRifle);
+	PlayerInputComponent->BindAction("Throw Grenade",IE_Pressed,this,&AMyCharacter::Throw);
 
 	PlayerInputComponent->BindAction("Shop",IE_Pressed,this,&AMyCharacter::Shop);
 	
@@ -169,34 +171,37 @@ void AMyCharacter::FirePressed()
 	{
 		switch (_playerWeaponType)
 		{
+		//권총은 연사가 되지 않는다.
 			case EWeaponType::Pistol:
-			{
-				if(_pistolAmmo > 0 )
 				{
-					Fire();
-					_bFire = true;
-					GetWorldTimerManager().SetTimer(_autoFireTimerHandle,this,&AMyCharacter::Fire,1.0,true,0.2);
+					if(_pistolAmmo > 0 )
+					{
+						Fire();
+						_bFire = true;
+					}
+					else
+					{
+						UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
+					}
+					break;	
 				}
-				else
+			
+		case EWeaponType::Rifle:
 				{
-					UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
+					if(_ammo > 0 )
+					{
+						Fire();
+						_bFire = true;
+						GetWorldTimerManager().SetTimer(_autoFireTimerHandle,this,&AMyCharacter::Fire,0.15,true,0.15);
+					}
+					else
+					{
+						UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
+					}
+					break;
 				}
-				break;	
-			}
-			case EWeaponType::Rifle:
-			{
-				if(_ammo > 0 )
-				{
-					Fire();
-					_bFire = true;
-					GetWorldTimerManager().SetTimer(_autoFireTimerHandle,this,&AMyCharacter::Fire,0.15,true,0.15);
-				}
-				else
-				{
-					UGameplayStatics::PlaySoundAtLocation(this->GetWorld(),_gunEmptySound,GetActorLocation());
-				}
-				break;
-			}
+
+		
 		}
 		
 	}
@@ -263,11 +268,20 @@ void AMyCharacter::Fire()
 			}
 			break;
 		}
+
 	}
 	
 	
 }
 
+void AMyCharacter::Throw()
+{
+	PlayAnimMontage(_ThrowMontage);
+	SpawnGrenade();
+	
+}
+
+//투사체 생성(라이플,권총 총알)
 void AMyCharacter::SpawnProjectile(FHitResult Hit)
 {
 	switch(_playerWeaponType)
@@ -358,6 +372,38 @@ void AMyCharacter::SpawnProjectile(FHitResult Hit)
 		}
 	}
 	
+}
+
+//수류탄 스폰
+void AMyCharacter::SpawnGrenade()
+{
+
+	//총구의 위치 구하기
+	FVector GrenadeSpawnLocation = GetMesh()->GetChildComponent(2)->GetComponentLocation();
+	FRotator GrenadeSpawnRotation;
+
+
+	GrenadeSpawnRotation = UKismetMathLibrary::FindLookAtRotation(GrenadeSpawnLocation,GrenadeSpawnLocation.ForwardVector);
+	
+	
+	
+	FTransform GrenadeSpawnTransform = UKismetMathLibrary::MakeTransform(GrenadeSpawnLocation,GrenadeSpawnRotation,FVector(1,1,1));
+	
+	
+	if(_grenade)
+	{
+		
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		
+		AGrenade* grenade = GetWorld()->SpawnActor<AGrenade>(_grenade,GrenadeSpawnTransform,SpawnParams);
+		grenade->SetOwner(this);
+		if(grenade)
+		{
+			//투사체가 자기 자신은 무시하도록 하기.
+			grenade->_CollisionComp->MoveIgnoreActors.Add(SpawnParams.Owner);
+		}
+	}
 }
 
 
