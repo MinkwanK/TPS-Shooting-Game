@@ -148,6 +148,7 @@ public:
 
 	//타이머핸들 
 	FTimerHandle _autoFireTimerHandle;
+	FTimerHandle _pistolFireTimerHandle;
 	FTimerHandle _reloadTimerHandle;
 	FTimerHandle _aimTimerHandle;
 	FTimerHandle _dieTimerHandle;

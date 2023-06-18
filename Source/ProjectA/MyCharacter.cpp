@@ -178,6 +178,8 @@ void AMyCharacter::FirePressed()
 					{
 						Fire();
 						_bFire = true;
+						GetWorldTimerManager().SetTimer(_pistolFireTimerHandle,this,&AMyCharacter::FireReleased,0.05);
+						//FireReleased();
 					}
 					else
 					{
@@ -200,10 +202,7 @@ void AMyCharacter::FirePressed()
 					}
 					break;
 				}
-
-		
 		}
-		
 	}
 }
 
