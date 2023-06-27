@@ -273,10 +273,12 @@ void AMyCharacter::Fire()
 	
 }
 
+//수류탄 투척 함수 (G)
 void AMyCharacter::Throw()
 {
 	PlayAnimMontage(_ThrowMontage);
-	SpawnGrenade();
+	//GetWorldTimerManager().SetTimer(_throwTimerHandle,this,&AMyCharacter::SpawnGrenade,1.82f,false);
+	//SpawnGrenade();
 	
 }
 
@@ -381,8 +383,8 @@ void AMyCharacter::SpawnGrenade()
 	FVector GrenadeSpawnLocation = GetMesh()->GetChildComponent(2)->GetComponentLocation();
 	FRotator GrenadeSpawnRotation;
 
-
-	GrenadeSpawnRotation = UKismetMathLibrary::FindLookAtRotation(GrenadeSpawnLocation,GrenadeSpawnLocation.ForwardVector);
+	GrenadeSpawnRotation = GetActorForwardVector().Rotation();
+	//GrenadeSpawnRotation = UKismetMathLibrary::FindLookAtRotation(GrenadeSpawnLocation,GetActorLocation().ForwardVector);
 	
 	
 	

@@ -153,6 +153,7 @@ public:
 	FTimerHandle _aimTimerHandle;
 	FTimerHandle _dieTimerHandle;
 	FTimerHandle _swapTimerHandle;
+	FTimerHandle _throwTimerHandle;
 	//
 	
 	UPROPERTY(BlueprintReadOnly)

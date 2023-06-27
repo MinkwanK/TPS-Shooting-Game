@@ -25,10 +25,27 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	//폭팔 함수
+	void GrenadeExplosion();
+	void FireRay();
+	
 	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite);
 	USphereComponent* _CollisionComp;
 
-	UPROPERTY(EditDefaultsOnly);
-	UProjectileMovementComponent* _projectileMovement;
+	UPROPERTY(EditDefaultsOnly,BlueprintReadWrite);
+	USphereComponent* _GrenadeExplosionCollisionComp;
+	
+	//폭팔 파티클
+	UPROPERTY(EditDefaultsOnly)
+	UParticleSystemComponent* _particleComp;
+
+	//폭팔 시간 타이머 핸들
+	FTimerHandle _explosionTimerHandle;
+
+
+	UPROPERTY(EditDefaultsOnly)
+	USoundBase* _explosionSound;
+	
+	int _explosinTime = 4.0f;
 
 };
