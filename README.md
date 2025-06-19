@@ -80,4 +80,4 @@
 ## 🔗 관련 링크
 
 - 🔗 [GitHub Repository](https://github.com/MinkwanK/ComeAndGetMe-new)
-- 🔗 [개인 블로그 (개발기록)](https://blog.naver.com/minkwankim98)
+- 🔗 [개인 블로그](https://blog.naver.com/minkwankim98)
